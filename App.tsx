@@ -4,8 +4,9 @@ import VideoModal from './components/VideoModal';
 import StrategyCardModal from './components/StrategyCardModal';
 import LoadingScreen from './components/LoadingScreen';
 import CompletionScreen from './components/CompletionScreen';
-import { BACKGROUND_URL, ISLAND_CONFIGS, VIDEOS, SEQUENTIAL, FOOTER_IMAGE_CONFIG, HEADER_LOGO_CONFIG, VIRTUAL_CANVAS_WIDTH, VIRTUAL_CANVAS_HEIGHT } from './constants';
-import type { IslandStatus, DeviceType, IslandConfig } from './types';
+import IntroVideo from './components/IntroVideo';
+import { BACKGROUND_URL, ISLAND_CONFIGS, VIDEOS, SEQUENTIAL, FOOTER_IMAGE_CONFIG, HEADER_LOGO_CONFIG, VIRTUAL_CANVAS_WIDTH, VIRTUAL_CANVAS_HEIGHT, LOADING_GIF_CONFIG } from './constants';
+import type { IslandStatus, DeviceType, IslandConfig, AppPhase } from './types';
 import ResetIcon from './components/icons/ResetIcon';
 import OrientationLock from './components/OrientationLock';
 
@@ -86,7 +87,7 @@ const getResponsiveValue = <T,>(
 };
 
 const App: React.FC = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [appPhase, setAppPhase] = useState<AppPhase>('loading');
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [unlockedIslands, setUnlockedIslands] = useState<number[]>([]);
   const [selectedIsland, setSelectedIsland] = useState<number | null>(null);
@@ -117,6 +118,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const imageUrls = [
+      LOADING_GIF_CONFIG.url,
       BACKGROUND_URL,
       HEADER_LOGO_CONFIG.url,
       FOOTER_IMAGE_CONFIG.url,
@@ -127,7 +129,7 @@ const App: React.FC = () => {
     const totalImages = imageUrls.length;
 
     if (totalImages === 0) {
-        setIsLoading(false);
+        setAppPhase('intro');
         return;
     }
 
@@ -138,7 +140,7 @@ const App: React.FC = () => {
 
       if (loadedCount === totalImages) {
         // A brief delay to prevent flashing if loading is too fast
-        setTimeout(() => setIsLoading(false), 500);
+        setTimeout(() => setAppPhase('intro'), 500);
       }
     };
 
@@ -188,6 +190,8 @@ const App: React.FC = () => {
   }, []);
 
   const handleCloseCompletion = () => setCompletionScreenDismissed(true);
+  
+  const handleIntroComplete = () => setAppPhase('exploring');
 
   const getIslandStatus = (index: number): IslandStatus => {
     if (unlockedIslands.includes(index)) return 'unlocked';
@@ -205,9 +209,10 @@ const App: React.FC = () => {
   return (
     <>
       <OrientationLock />
-      <LoadingScreen isLoading={isLoading} progress={loadingProgress} />
+      <LoadingScreen isLoading={appPhase === 'loading'} progress={loadingProgress} />
+      <IntroVideo show={appPhase === 'intro'} onComplete={handleIntroComplete} />
       <main 
-        className={`relative w-screen h-screen overflow-hidden text-white font-inter transition-opacity duration-1000 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        className={`relative w-screen h-screen overflow-hidden text-white font-inter transition-opacity duration-1000 ${appPhase === 'exploring' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         style={{ backgroundColor: '#0f2460' }}
       >
         <Globe>

@@ -1,7 +1,15 @@
-import type { IslandPosition, IslandConfig, FooterImageConfig, HeaderLogoConfig } from './types';
+import type { IslandPosition, IslandConfig, FooterImageConfig, HeaderLogoConfig, LoadingGifConfig } from './types';
 
 // The main background image URL
 export const BACKGROUND_URL: string = 'https://i.imgur.com/SSdiUoB.png'; // A square fantasy map background
+
+// New configuration object for the loading GIF
+export const LOADING_GIF_CONFIG: LoadingGifConfig = {
+  url: 'https://i.imgur.com/Lfhnf7z.gif',
+  size: 300, // Corresponds to Tailwind's w-32/h-32 (128px)
+  x: 0,    // 0% offset, perfectly centered horizontally
+  y: 0,    // 0% offset, perfectly centered vertically
+};
 
 // Virtual canvas dimensions for a fixed coordinate system
 export const VIRTUAL_CANVAS_WIDTH: number = 1024;
@@ -97,6 +105,15 @@ export const VIDEOS: string[] = [
   "https://cdn.pixabay.com/video/2023/01/29/147819-794503251_large.mp4",
   "https://cdn.pixabay.com/video/2023/06/13/166316-836775990_large.mp4",
 ];
+
+// New constant for the introductory YouTube video ID
+export const INTRO_YOUTUBE_VIDEO_ID: string = "bRPQmaFQiwM";
+
+// New constant to control intro video sound. Set to `false` for sound, `true` for muted.
+export const INTRO_YOUTUBE_MUTED: boolean = false;
+
+// New constant to control intro video autoplay.
+export const INTRO_YOUTUBE_AUTOPLAY: boolean = true;
 
 // Configuration for the footer image
 export const FOOTER_IMAGE_CONFIG: FooterImageConfig = {

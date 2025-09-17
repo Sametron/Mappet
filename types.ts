@@ -33,6 +33,15 @@ export interface HeaderLogoConfig {
   mobileSize?: number;
 }
 
+export interface LoadingGifConfig {
+  url: string;
+  size: number; // size in pixels (width & height)
+  x: number;    // horizontal offset from center in percentage
+  y: number;    // vertical offset from center in percentage
+}
+
 export type IslandStatus = 'locked' | 'active' | 'unlocked';
 
 export type DeviceType = 'mobile' | 'tablet' | 'desktop';
+
+export type AppPhase = 'loading' | 'intro' | 'exploring';
