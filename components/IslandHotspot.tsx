@@ -40,7 +40,19 @@ const IslandHotspot: React.FC<IslandHotspotProps> = ({ index, config, status, on
   const isUnlocked = status === 'unlocked';
   const isActive = status === 'active';
 
-  const imageSrc = isUnlocked ? config.developedImg : config.undevelopedImg;
+  let imageSrc: string;
+  switch (status) {
+    case 'unlocked':
+      imageSrc = config.developedImg;
+      break;
+    case 'active':
+      imageSrc = config.activeImg || config.undevelopedImg;
+      break;
+    case 'locked':
+    default:
+      imageSrc = config.undevelopedImg;
+      break;
+  }
   const altText = `Strategy Island ${config.name} (${status})`;
 
   if (isUnlocked) {

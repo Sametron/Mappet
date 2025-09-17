@@ -4,7 +4,7 @@ import VideoModal from './components/VideoModal';
 import IslandInfoModal from './components/IslandInfoModal';
 import LoadingScreen from './components/LoadingScreen';
 import CompletionScreen from './components/CompletionScreen';
-import { BACKGROUND_URL, BRIDGE_URL, BRIDGE_CONFIG, BACKGROUND_SIZE, ISLAND_CONFIGS, VIDEOS, SEQUENTIAL } from './constants';
+import { BACKGROUND_URL, BRIDGE_URL, BRIDGE_CONFIG, BACKGROUND_SIZE, ISLAND_CONFIGS, VIDEOS, SEQUENTIAL, FOOTER_IMAGE_CONFIG, HEADER_LOGO_CONFIG } from './constants';
 import type { IslandStatus, DeviceType, IslandConfig } from './types';
 import ResetIcon from './components/icons/ResetIcon';
 import OrientationLock from './components/OrientationLock';
@@ -60,7 +60,9 @@ const App: React.FC = () => {
     const imageUrls = [
       BACKGROUND_URL,
       BRIDGE_URL,
-      ...ISLAND_CONFIGS.flatMap(config => [config.undevelopedImg, config.developedImg])
+      HEADER_LOGO_CONFIG.url,
+      FOOTER_IMAGE_CONFIG.url,
+      ...ISLAND_CONFIGS.flatMap(config => [config.undevelopedImg, config.developedImg, config.activeImg]).filter(Boolean) as string[]
     ];
 
     let loadedCount = 0;
@@ -138,6 +140,11 @@ const App: React.FC = () => {
   const bridgeY = getResponsiveValue(BRIDGE_CONFIG.y, deviceType, BRIDGE_CONFIG.mobileY, BRIDGE_CONFIG.tabletY);
   const bridgeSize = getResponsiveValue(BRIDGE_CONFIG.size, deviceType, BRIDGE_CONFIG.mobileSize, BRIDGE_CONFIG.tabletSize);
 
+  const footerY = getResponsiveValue(FOOTER_IMAGE_CONFIG.y, deviceType, FOOTER_IMAGE_CONFIG.mobileY, FOOTER_IMAGE_CONFIG.tabletY);
+  const footerMaxHeight = getResponsiveValue(FOOTER_IMAGE_CONFIG.size, deviceType, FOOTER_IMAGE_CONFIG.mobileSize, FOOTER_IMAGE_CONFIG.tabletSize);
+  
+  const logoHeight = getResponsiveValue(HEADER_LOGO_CONFIG.size, deviceType, HEADER_LOGO_CONFIG.mobileSize, HEADER_LOGO_CONFIG.tabletSize);
+
   return (
     <>
       <OrientationLock />
@@ -188,9 +195,16 @@ const App: React.FC = () => {
 
         {/* Layer 4: UI */}
         <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center bg-gradient-to-b from-black/50 to-transparent z-30">
-          <div>
-            <h1 className="text-3xl font-bold font-orbitron tracking-wider text-shadow">BUPA STRATEGY MAP</h1>
-            <p className="text-cyan-300">Unlock all strategic locations</p>
+          <div className="flex items-center gap-4">
+            <img 
+              src={HEADER_LOGO_CONFIG.url} 
+              alt={HEADER_LOGO_CONFIG.alt}
+              style={{ height: `${logoHeight}vh` }}
+            />
+            <div>
+              <h1 className="text-3xl font-bold font-orbitron tracking-wider text-shadow">BUPA STRATEGY MAP</h1>
+              <p className="text-cyan-300">Unlock all strategic locations</p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <div className='text-right'>
@@ -211,6 +225,21 @@ const App: React.FC = () => {
             </button>
           </div>
         </header>
+
+        <footer 
+          className="absolute bottom-0 left-0 right-0 pointer-events-none z-30" 
+          aria-hidden="true"
+          style={{ bottom: `${footerY}%` }}
+        >
+          <img
+            src={FOOTER_IMAGE_CONFIG.url}
+            alt={FOOTER_IMAGE_CONFIG.alt}
+            className="w-full h-auto object-contain"
+            style={{
+              maxHeight: `${footerMaxHeight}vmin`,
+            }}
+          />
+        </footer>
         
         <style>{`
           .text-shadow { text-shadow: 0 2px 4px rgba(0, 255, 229, 0.5); }
