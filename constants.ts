@@ -1,4 +1,3 @@
-
 import type { IslandPosition, IslandConfig, FooterImageConfig, HeaderLogoConfig } from './types';
 
 // The main background image URL
@@ -27,57 +26,63 @@ export const HEADER_LOGO_CONFIG: HeaderLogoConfig = {
 export const ISLAND_CONFIGS: IslandConfig[] = [
   { 
     x: 440, y: 160, size: 360,
-    name: 'The Whispering Glades',
-    description: 'A vibrant hub of bio-energy. Securing this location allows us to harness natural growth cycles, accelerating resource production and regeneration across all sectors.',
-    lore: 'Ancient tales speak of a slumbering forest spirit that nurtures the land. Every rustle of leaves is said to be a whisper of forgotten strategies.',
-    undevelopedImg: 'https://i.imgur.com/wdhqCSg.png', // Grassy undeveloped (static)
-    activeImg: 'https://i.imgur.com/gKrZjiC.gif',      // Grassy undeveloped (animated)
-    developedImg: 'https://i.imgur.com/P77KdBm.png'   // Grassy developed with hut
+    name: 'Customer Growth',
+    description: 'Stretch further into the mass affluent as a funder and partner with non-compete insurers. Be a partner of choice for the Government to capture PPP spending. Expanding alternative funding products (e.g. subscription plan) to drive retention and access to our healthcare ecosystem.',
+    lore: 'Stretch further into the mass affluent as a funder and partner with non-compete insurers. Be a partner of choice for the Government to capture PPP spending. Expanding alternative funding products (e.g. subscription plan) to drive retention and access to our healthcare ecosystem.',
+    undevelopedImg: 'https://i.imgur.com/wdhqCSg.png',
+    activeImg: 'https://i.imgur.com/gKrZjiC.gif',
+    developedImg: 'https://i.imgur.com/8sVxmY4.png',
+    cardImg: 'https://i.imgur.com/x6xEKxV.png' // Glowing Tree Card
   },
   { 
     x: 740, y: 275, size: 360,
-    name: 'The Sky-Piercer Spire',
-    description: 'This commanding geological formation provides unparalleled surveillance and communication advantages. Its height is key to establishing a long-range strategic network.',
-    lore: 'It is said that on a clear day, one can see the curvature of the world from its peak, granting a perspective that has inspired conquerors and visionaries alike.',
-    undevelopedImg: 'https://i.imgur.com/QS97oit.png', // Rocky undeveloped
-    activeImg: 'https://i.imgur.com/BefTGU5.gif',      // Rocky active
-    developedImg: 'https://i.imgur.com/PehaeTj.png'   // Rocky developed with tower
+    name: 'Outpatient Expansion',
+    description: 'Invest in expanding our owned outpatient capacity, capturing broader footprint and enlarged clinics with a customer-centric design.',
+    lore: 'Invest in expanding our owned outpatient capacity, capturing broader footprint and enlarged clinics with a customer-centric design.',
+    undevelopedImg: 'https://i.imgur.com/QS97oit.png',
+    activeImg: 'https://i.imgur.com/BefTGU5.gif',
+    developedImg: 'https://i.imgur.com/P7UZuOW.png',
+    cardImg: 'https://i.imgur.com/E2gCoBW.png' // Floating Crystal Mountain Card
   },
    { 
     x: 240, y: 330, size: 320,
-    name: 'The Crystal Citadel',
-    description: 'These crystalline structures are natural data storage units, holding vast amounts of information. Accessing them is crucial for our intelligence and research divisions.',
-    lore: 'The Citadel hums with a low frequency, singing the song of eons. Listeners claim to hear echoes of the past and whispers of the future in its vibrations.',
-    undevelopedImg: 'https://i.imgur.com/qa9ht0W.png', // Icy undeveloped
-    activeImg: 'https://i.imgur.com/ov1FkcP.gif',      // Icy active
-    developedImg: 'https://i.imgur.com/tAb3B6R.png'   // Icy developed with palace
+    name: 'Outpatient M&A',
+    description: 'Pursue inorganic opportunities to more than double our market share to 20%',
+    lore: 'Pursue inorganic opportunities to more than double our market share to 20%',
+    undevelopedImg: 'https://i.imgur.com/qa9ht0W.png',
+    activeImg: 'https://i.imgur.com/ov1FkcP.gif',
+    developedImg: 'https://i.imgur.com/udu1W78.png',
+    cardImg: 'https://i.imgur.com/gUAYd3C.png' // Icy Fortress Card
   },
   { 
     x: 500, y: 820, size: 340,
-    name: 'Hospital',
-    description: 'This location houses submerged relics of a past civilization, containing lost technologies. Its retrieval is paramount for our next wave of innovation.',
-    lore: 'The tides here ebb and flow with an unnatural rhythm, revealing and concealing the ruins as if protecting the secrets of those who came before.',
-    undevelopedImg: 'https://i.imgur.com/Ge6A2rq.png', // Sandy undeveloped
-    activeImg: 'https://i.imgur.com/5DLzFB3.gif',      // Sandy active
-    developedImg: 'https://i.imgur.com/uQzA1T0.png'   // Sandy developed with cove
+    name: 'Hospital Strategy',
+    description: 'Develop steerage for inpatient management.',
+    lore: 'Develop steerage for inpatient management.',
+    undevelopedImg: 'https://i.imgur.com/Ge6A2rq.png',
+    activeImg: 'https://i.imgur.com/5DLzFB3.gif',
+    developedImg: 'https://i.imgur.com/AkR7Bnz.png',
+    cardImg: 'https://i.imgur.com/WLCQly5.png' // Mystical Oasis Card
   },
   {
     x: 260, y: 700, size: 320,
-    name: 'Connected Care',
-    description: 'A nexus of geothermal power. The Emberforge is the only place with the resources and heat necessary to craft our most advanced alloys and power cores.',
-    lore: 'It is believed the island is the cooling shell of a great beast, its heart still burning with immense power deep below the surface.',
-    undevelopedImg: 'https://i.imgur.com/ArVh2pk.png', // Volcanic undeveloped
-    activeImg: 'https://i.imgur.com/16n1gpg.gif',      // Volcanic active
-    developedImg: 'https://i.imgur.com/GfthALE.png'   // Volcanic developed with forge
+    name: 'Digital Healthcare Journey',
+    description: 'Experience a tailored healthcare journey with a Personalised Health Plan on Blua. Comprehensive support and access to a wide range of services designed for each customer’s unique needs.',
+    lore: 'Experience a tailored healthcare journey with a Personalised Health Plan on Blua. Comprehensive support and access to a wide range of services designed for each customer’s unique needs.',
+    undevelopedImg: 'https://i.imgur.com/ArVh2pk.png',
+    activeImg: 'https://i.imgur.com/16n1gpg.gif',
+    developedImg: 'https://i.imgur.com/PPOHwDV.png',
+    cardImg: 'https://i.imgur.com/FTlubZ4.png' // Volcanic Forge Card
   },
     { 
     x: 720, y: 720, size: 320,
-    name: 'Result',
-    description: 'A dense, confusing woodland that is ideal for covert operations and ambushes. Mastering its winding paths gives us a powerful defensive and tactical advantage.',
-    lore: 'The trees themselves are rumored to shift their positions, guiding the worthy and confounding intruders. Only those with true clarity of purpose can navigate its depths.',
-    undevelopedImg: 'https://i.imgur.com/ipgx27U.png', // Forest undeveloped
-    activeImg: 'https://i.imgur.com/VfuHRUW.gif',      // Forest active
-    developedImg: 'https://i.imgur.com/BNrX1RN.png'   // Forest developed with structure
+    name: '4X Profit',
+    description: 'Drive operational excellence and innovative service delivery to achieve a fourfold increase in profitability, while aiming to acquire and engage 100 million customers to solidify our leadership position in the healthcare sector.',
+    lore: 'Drive operational excellence and innovative service delivery to achieve a fourfold increase in profitability, while aiming to acquire and engage 100 million customers to solidify our leadership position in the healthcare sector.',
+    undevelopedImg: 'https://i.imgur.com/ipgx27U.png',
+    activeImg: 'https://i.imgur.com/VfuHRUW.gif',
+    developedImg: 'https://i.imgur.com/QE0a09o.png',
+    cardImg: 'https://i.imgur.com/KFnE4bl.png' // Celestial Gateway Card
   },
  
 ];

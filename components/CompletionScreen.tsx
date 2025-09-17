@@ -1,16 +1,15 @@
 import React from 'react';
-import ResetIcon from './icons/ResetIcon';
 
 interface CompletionScreenProps {
   show: boolean;
-  onReset: () => void;
+  onClose: () => void;
 }
 
 const ConfettiPiece: React.FC<{ style: React.CSSProperties }> = ({ style }) => (
   <div className="absolute" style={style}></div>
 );
 
-const CompletionScreen: React.FC<CompletionScreenProps> = ({ show, onReset }) => {
+const CompletionScreen: React.FC<CompletionScreenProps> = ({ show, onClose }) => {
   if (!show) {
     return null;
   }
@@ -43,11 +42,10 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({ show, onReset }) =>
         </h1>
         <h2 className="text-3xl text-cyan-200 mb-12">All strategies unlocked!</h2>
         <button
-          onClick={onReset}
-          className="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xl rounded-lg hover:opacity-90 transition-opacity shadow-lg"
+          onClick={onClose}
+          className="inline-flex items-center justify-center gap-3 px-10 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xl rounded-lg hover:opacity-90 transition-opacity shadow-lg"
         >
-          <ResetIcon className="w-6 h-6" />
-          Play Again
+          Close
         </button>
       </div>
       <style>{`

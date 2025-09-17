@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { IslandConfig, IslandStatus } from '../types';
 import { VIRTUAL_CANVAS_WIDTH, VIRTUAL_CANVAS_HEIGHT } from '../constants';
 
@@ -13,7 +12,9 @@ interface IslandHotspotProps {
 
 const IslandHotspot: React.FC<IslandHotspotProps> = ({ index, config, status, onClick, isRecentlyUnlocked }) => {
   const [isHovered, setIsHovered] = useState(false);
-  
+  const imageRef = useRef<HTMLImageElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
   const xPosPercent = (config.x / VIRTUAL_CANVAS_WIDTH) * 100;
   const yPosPercent = (config.y / VIRTUAL_CANVAS_HEIGHT) * 100;
   const sizePercent = (config.size / VIRTUAL_CANVAS_WIDTH) * 100;
@@ -41,6 +42,68 @@ const IslandHotspot: React.FC<IslandHotspotProps> = ({ index, config, status, on
   }
   const altText = `Strategy Island ${config.name} (${status})`;
 
+  useEffect(() => {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    if (!context) return;
+
+    const image = new Image();
+    image.crossOrigin = 'Anonymous'; // Required for reading pixel data from images hosted on other domains
+    image.src = imageSrc;
+    
+    image.onload = () => {
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      context.drawImage(image, 0, 0);
+      canvasRef.current = canvas;
+    };
+    image.onerror = () => {
+      console.error(`Failed to load image for pixel detection: ${imageSrc}`);
+    };
+  }, [imageSrc]);
+
+  const handlePixelCheckClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!canvasRef.current || !imageRef.current) {
+      // Fallback: If canvas isn't ready for some reason, perform the default click.
+      onClick();
+      return;
+    }
+
+    const canvas = canvasRef.current;
+    const imageEl = imageRef.current;
+    const rect = imageEl.getBoundingClientRect();
+    
+    // Calculate click position relative to the image element
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Scale the coordinates to match the canvas's (original image) dimensions
+    const scaleX = canvas.width / imageEl.offsetWidth;
+    const scaleY = canvas.height / imageEl.offsetHeight;
+    const canvasX = Math.floor(x * scaleX);
+    const canvasY = Math.floor(y * scaleY);
+
+    // Get the alpha value of the clicked pixel
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    try {
+      const pixelData = context.getImageData(canvasX, canvasY, 1, 1).data;
+      const alpha = pixelData[3];
+  
+      // If the pixel is not transparent (alpha > threshold), trigger the original onClick
+      if (alpha > 20) {
+        onClick();
+      }
+    } catch (error) {
+        // This can happen due to CORS issues if the server doesn't allow it.
+        // In case of an error, we'll fall back to the default click behavior.
+        console.error("Could not get pixel data. Falling back to default click.", error);
+        onClick();
+    }
+  };
+
+
   if (isUnlocked) {
     buttonStatusClass = 'cursor-pointer';
     imageStatusClass = 'filter drop-shadow(0 0 4px rgba(0, 255, 255, 0.5))'; 
@@ -65,14 +128,15 @@ const IslandHotspot: React.FC<IslandHotspotProps> = ({ index, config, status, on
           top: `${yPosPercent}%`,
           width: `${sizePercent}%`,
           aspectRatio: '1 / 1',
-          zIndex: isHovered ? 40 : 'auto'
+          zIndex: isHovered ? 49 : 'auto'
         }}
-        onClick={onClick}
+        onClick={handlePixelCheckClick}
         disabled={status === 'locked'}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <img 
+        <img
+          ref={imageRef}
           src={imageSrc}
           alt={altText}
           className={`${imageClasses} ${imageStatusClass} ${unlockEffectClass}`}

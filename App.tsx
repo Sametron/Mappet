@@ -1,8 +1,7 @@
-
 import React, { useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
 import IslandHotspot from './components/IslandHotspot';
 import VideoModal from './components/VideoModal';
-import IslandInfoModal from './components/IslandInfoModal';
+import StrategyCardModal from './components/StrategyCardModal';
 import LoadingScreen from './components/LoadingScreen';
 import CompletionScreen from './components/CompletionScreen';
 import { BACKGROUND_URL, ISLAND_CONFIGS, VIDEOS, SEQUENTIAL, FOOTER_IMAGE_CONFIG, HEADER_LOGO_CONFIG, VIRTUAL_CANVAS_WIDTH, VIRTUAL_CANVAS_HEIGHT } from './constants';
@@ -91,9 +90,10 @@ const App: React.FC = () => {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [unlockedIslands, setUnlockedIslands] = useState<number[]>([]);
   const [selectedIsland, setSelectedIsland] = useState<number | null>(null);
-  const [infoIsland, setInfoIsland] = useState<IslandConfig | null>(null);
+  const [strategyCardIsland, setStrategyCardIsland] = useState<IslandConfig | null>(null);
   const [recentlyUnlocked, setRecentlyUnlocked] = useState<number | null>(null);
   const [deviceType, setDeviceType] = useState<DeviceType>('desktop');
+  const [completionScreenDismissed, setCompletionScreenDismissed] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -120,7 +120,7 @@ const App: React.FC = () => {
       BACKGROUND_URL,
       HEADER_LOGO_CONFIG.url,
       FOOTER_IMAGE_CONFIG.url,
-      ...ISLAND_CONFIGS.flatMap(config => [config.undevelopedImg, config.developedImg, config.activeImg]).filter(Boolean) as string[]
+      ...ISLAND_CONFIGS.flatMap(config => [config.undevelopedImg, config.developedImg, config.activeImg, config.cardImg]).filter(Boolean) as string[]
     ];
 
     let loadedCount = 0;
@@ -162,7 +162,7 @@ const App: React.FC = () => {
     const isActive = SEQUENTIAL ? index === activeIslandIndex : true;
 
     if (isUnlocked) {
-      setInfoIsland(ISLAND_CONFIGS[index]);
+      setStrategyCardIsland(ISLAND_CONFIGS[index]);
     } else if (isActive) {
       setSelectedIsland(index);
     }
@@ -183,8 +183,11 @@ const App: React.FC = () => {
   const handleReset = useCallback(() => {
     setUnlockedIslands([]);
     setSelectedIsland(null);
-    setInfoIsland(null);
+    setStrategyCardIsland(null);
+    setCompletionScreenDismissed(false);
   }, []);
+
+  const handleCloseCompletion = () => setCompletionScreenDismissed(true);
 
   const getIslandStatus = (index: number): IslandStatus => {
     if (unlockedIslands.includes(index)) return 'unlocked';
@@ -275,6 +278,7 @@ const App: React.FC = () => {
             alt={FOOTER_IMAGE_CONFIG.alt}
             className="w-full h-auto object-contain"
             style={{
+              // FIX: Corrected variable name from `maxHeight` to `footerMaxHeight`
               maxHeight: `${footerMaxHeight}vmin`,
             }}
           />
@@ -289,10 +293,10 @@ const App: React.FC = () => {
           .animate-pulse-deep { animation: pulse-deep 2.5s infinite ease-out; }
         `}</style>
 
-        {infoIsland && (
-          <IslandInfoModal 
-            island={infoIsland} 
-            onClose={() => setInfoIsland(null)} 
+        {strategyCardIsland && (
+          <StrategyCardModal 
+            island={strategyCardIsland} 
+            onClose={() => setStrategyCardIsland(null)} 
           />
         )}
 
@@ -304,7 +308,7 @@ const App: React.FC = () => {
           />
         )}
         
-        <CompletionScreen show={isComplete} onReset={handleReset} />
+        <CompletionScreen show={isComplete && !completionScreenDismissed} onClose={handleCloseCompletion} />
       </main>
     </>
   );
