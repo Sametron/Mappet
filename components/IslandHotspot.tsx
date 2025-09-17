@@ -1,5 +1,7 @@
+
 import React, { useState } from 'react';
-import type { IslandConfig, IslandStatus, DeviceType } from '../types';
+import type { IslandConfig, IslandStatus } from '../types';
+import { VIRTUAL_CANVAS_WIDTH, VIRTUAL_CANVAS_HEIGHT } from '../constants';
 
 interface IslandHotspotProps {
   index: number;
@@ -7,30 +9,14 @@ interface IslandHotspotProps {
   status: IslandStatus;
   onClick: () => void;
   isRecentlyUnlocked: boolean;
-  deviceType: DeviceType;
 }
 
-const getResponsiveValue = (
-  desktopVal: number,
-  deviceType: DeviceType,
-  mobileVal?: number,
-  tabletVal?: number
-): number => {
-  if (deviceType === 'mobile' && typeof mobileVal === 'number') {
-    return mobileVal;
-  }
-  if (deviceType === 'tablet' && typeof tabletVal === 'number') {
-    return tabletVal;
-  }
-  return desktopVal;
-};
-
-const IslandHotspot: React.FC<IslandHotspotProps> = ({ index, config, status, onClick, isRecentlyUnlocked, deviceType }) => {
+const IslandHotspot: React.FC<IslandHotspotProps> = ({ index, config, status, onClick, isRecentlyUnlocked }) => {
   const [isHovered, setIsHovered] = useState(false);
   
-  const xPos = getResponsiveValue(config.x, deviceType, config.mobileX, config.tabletX);
-  const yPos = getResponsiveValue(config.y, deviceType, config.mobileY, config.tabletY);
-  const currentSize = getResponsiveValue(config.size, deviceType, config.mobileSize, config.tabletSize);
+  const xPosPercent = (config.x / VIRTUAL_CANVAS_WIDTH) * 100;
+  const yPosPercent = (config.y / VIRTUAL_CANVAS_HEIGHT) * 100;
+  const sizePercent = (config.size / VIRTUAL_CANVAS_WIDTH) * 100;
   
   const baseClasses = "absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-in-out";
   const imageClasses = "w-full h-full object-contain transition-all duration-300";
@@ -75,10 +61,10 @@ const IslandHotspot: React.FC<IslandHotspotProps> = ({ index, config, status, on
         aria-label={`Open Strategy ${config.name}`}
         className={`${baseClasses} ${buttonStatusClass}`}
         style={{ 
-          left: `${xPos}%`, 
-          top: `${yPos}%`,
-          width: `${currentSize}vmin`,
-          height: `${currentSize}vmin`,
+          left: `${xPosPercent}%`, 
+          top: `${yPosPercent}%`,
+          width: `${sizePercent}%`,
+          aspectRatio: '1 / 1',
           zIndex: isHovered ? 40 : 'auto'
         }}
         onClick={onClick}

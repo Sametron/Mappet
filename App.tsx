@@ -1,16 +1,75 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+
+import React, { useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
 import IslandHotspot from './components/IslandHotspot';
 import VideoModal from './components/VideoModal';
 import IslandInfoModal from './components/IslandInfoModal';
 import LoadingScreen from './components/LoadingScreen';
 import CompletionScreen from './components/CompletionScreen';
-import { BACKGROUND_URL, BRIDGE_URL, BRIDGE_CONFIG, BACKGROUND_SIZE, ISLAND_CONFIGS, VIDEOS, SEQUENTIAL, FOOTER_IMAGE_CONFIG, HEADER_LOGO_CONFIG } from './constants';
+import { BACKGROUND_URL, ISLAND_CONFIGS, VIDEOS, SEQUENTIAL, FOOTER_IMAGE_CONFIG, HEADER_LOGO_CONFIG, VIRTUAL_CANVAS_WIDTH, VIRTUAL_CANVAS_HEIGHT } from './constants';
 import type { IslandStatus, DeviceType, IslandConfig } from './types';
 import ResetIcon from './components/icons/ResetIcon';
 import OrientationLock from './components/OrientationLock';
 
 const MOBILE_BREAKPOINT = 767;
 const TABLET_BREAKPOINT = 1024;
+
+interface GlobeProps {
+  children: React.ReactNode;
+}
+
+const Globe: React.FC<GlobeProps> = ({ children }) => {
+  const [style, setStyle] = useState<React.CSSProperties>({});
+
+  useLayoutEffect(() => {
+    const calculateSize = () => {
+      const parentWidth = window.innerWidth;
+      const parentHeight = window.innerHeight;
+      const canvasAspectRatio = VIRTUAL_CANVAS_WIDTH / VIRTUAL_CANVAS_HEIGHT;
+      const parentAspectRatio = parentWidth / parentHeight;
+
+      let globeWidth: number;
+      let globeHeight: number;
+
+      if (parentAspectRatio > canvasAspectRatio) {
+        globeHeight = parentHeight;
+        globeWidth = globeHeight * canvasAspectRatio;
+      } else {
+        globeWidth = parentWidth;
+        globeHeight = globeWidth / canvasAspectRatio;
+      }
+
+      const globeTop = (parentHeight - globeHeight) / 2;
+      const globeLeft = (parentWidth - globeWidth) / 2;
+
+      setStyle({
+        position: 'absolute',
+        width: `${globeWidth}px`,
+        height: `${globeHeight}px`,
+        top: `${globeTop}px`,
+        left: `${globeLeft}px`,
+      });
+    };
+
+    calculateSize();
+    window.addEventListener('resize', calculateSize);
+    return () => window.removeEventListener('resize', calculateSize);
+  }, []);
+
+  return (
+    <div style={style}>
+      <div
+        className="absolute inset-0 bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url(${BACKGROUND_URL})`,
+          backgroundSize: '100% 100%',
+        }}
+        aria-hidden="true"
+      />
+      {children}
+    </div>
+  );
+};
+
 
 const getResponsiveValue = <T,>(
   desktopVal: T,
@@ -59,7 +118,6 @@ const App: React.FC = () => {
   useEffect(() => {
     const imageUrls = [
       BACKGROUND_URL,
-      BRIDGE_URL,
       HEADER_LOGO_CONFIG.url,
       FOOTER_IMAGE_CONFIG.url,
       ...ISLAND_CONFIGS.flatMap(config => [config.undevelopedImg, config.developedImg, config.activeImg]).filter(Boolean) as string[]
@@ -136,10 +194,6 @@ const App: React.FC = () => {
     return 'active';
   };
   
-  const bridgeX = getResponsiveValue(BRIDGE_CONFIG.x, deviceType, BRIDGE_CONFIG.mobileX, BRIDGE_CONFIG.tabletX);
-  const bridgeY = getResponsiveValue(BRIDGE_CONFIG.y, deviceType, BRIDGE_CONFIG.mobileY, BRIDGE_CONFIG.tabletY);
-  const bridgeSize = getResponsiveValue(BRIDGE_CONFIG.size, deviceType, BRIDGE_CONFIG.mobileSize, BRIDGE_CONFIG.tabletSize);
-
   const footerY = getResponsiveValue(FOOTER_IMAGE_CONFIG.y, deviceType, FOOTER_IMAGE_CONFIG.mobileY, FOOTER_IMAGE_CONFIG.tabletY);
   const footerMaxHeight = getResponsiveValue(FOOTER_IMAGE_CONFIG.size, deviceType, FOOTER_IMAGE_CONFIG.mobileSize, FOOTER_IMAGE_CONFIG.tabletSize);
   
@@ -153,45 +207,30 @@ const App: React.FC = () => {
         className={`relative w-screen h-screen overflow-hidden text-white font-inter transition-opacity duration-1000 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
         style={{ backgroundColor: '#0f2460' }}
       >
-        {/* Layer 1: Background Image */}
-        <div
-          className="absolute inset-0 bg-center bg-no-repeat transition-transform duration-500 ease-in-out"
-          style={{ 
-            backgroundImage: `url(${BACKGROUND_URL})`,
-            backgroundSize: BACKGROUND_SIZE 
-          }}
-        />
+        <Globe>
+          {/* Layer 2: Hotspots */}
+          <div className="absolute inset-0 z-10">
+            {ISLAND_CONFIGS.map((config, index) => (
+              <IslandHotspot
+                key={index}
+                index={index}
+                config={config}
+                status={getIslandStatus(index)}
+                onClick={() => handleHotspotClick(index)}
+                isRecentlyUnlocked={recentlyUnlocked === index}
+              />
+            ))}
+          </div>
 
-        {/* Layer 2: Hotspots */}
-        <div className="absolute inset-0 z-10">
-          {ISLAND_CONFIGS.map((config, index) => (
-            <IslandHotspot
-              key={index}
-              index={index}
-              config={config}
-              status={getIslandStatus(index)}
-              onClick={() => handleHotspotClick(index)}
-              isRecentlyUnlocked={recentlyUnlocked === index}
-              deviceType={deviceType}
-            />
-          ))}
-        </div>
-
-        {/* Layer 3: Bridge Image */}
-        <div className="absolute inset-0 pointer-events-none z-20" aria-hidden="true">
-          <img
-            src={BRIDGE_URL}
-            alt=""
-            className="absolute"
+          {/* Layer 3: Spotlight Overlay Effect */}
+          <div 
+            className="absolute inset-0 pointer-events-none z-20"
             style={{
-              top: `${bridgeY}%`,
-              left: `${bridgeX}%`,
-              transform: 'translate(-50%, -50%)',
-              width: `${bridgeSize}vmin`,
-              opacity: BRIDGE_CONFIG.opacity,
+                background: 'radial-gradient(circle at center, transparent 45%, rgba(15, 36, 96, 0.6) 75%)'
             }}
+            aria-hidden="true"
           />
-        </div>
+        </Globe>
 
         {/* Layer 4: UI */}
         <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center bg-gradient-to-b from-black/50 to-transparent z-30">

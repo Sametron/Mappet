@@ -1,30 +1,18 @@
-import type { IslandPosition, IslandConfig, BridgeConfig, FooterImageConfig, HeaderLogoConfig } from './types';
+
+import type { IslandPosition, IslandConfig, FooterImageConfig, HeaderLogoConfig } from './types';
 
 // The main background image URL
-export const BACKGROUND_URL: string = 'https://i.imgur.com/SSdiUoB.png?q=80&w=1974&auto=format&fit=crop'; // A fantasy map background
+export const BACKGROUND_URL: string = 'https://i.imgur.com/SSdiUoB.png'; // A square fantasy map background
 
-// Bridge image URL
-export const BRIDGE_URL: string = 'https://i.imgur.com/K5FmFIO.png'; // A stone bridge overlay
-
-// Configuration for the bridge overlay
-export const BRIDGE_CONFIG: BridgeConfig = {
-  x: 57, // horizontal position in percentage
-  y: 51, // vertical position in percentage
-  size: 8, // size in vmin (viewport's smaller dimension)
-  opacity: 1,
-  tabletX: 60,
-  tabletY: 51,
-  tabletSize: 8,
-  mobileX: 57,
-  mobileY: 51,
-  mobileSize: 8,
-};
+// Virtual canvas dimensions for a fixed coordinate system
+export const VIRTUAL_CANVAS_WIDTH: number = 1024;
+export const VIRTUAL_CANVAS_HEIGHT: number = 1024;
 
 // Controls the background image size. Common values: 'cover', 'contain', '100% 100%'
 export const BACKGROUND_SIZE: string = 'contain';
 
-// Central tower's coordinates in percentage
-export const CENTER: IslandPosition = { x: 50, y: 55 };
+// Central tower's coordinates (for reference, not used directly in this setup)
+export const CENTER: IslandPosition = { x: 512, y: 512 };
 
 // Configuration for the header logo
 export const HEADER_LOGO_CONFIG: HeaderLogoConfig = {
@@ -35,12 +23,10 @@ export const HEADER_LOGO_CONFIG: HeaderLogoConfig = {
   mobileSize: 10,
 };
 
-// Configuration for each of the six islands, each with unique images, positions, and sizes
+// Configuration for each of the six islands, each with unique images, positions, and sizes in virtual coordinates
 export const ISLAND_CONFIGS: IslandConfig[] = [
   { 
-    x: 45, y: 17, size: 35,
-    tabletX: 44, tabletY: 17, tabletSize: 35,
-    mobileX: 45, mobileY: 17, mobileSize: 35,
+    x: 440, y: 160, size: 360,
     name: 'The Whispering Glades',
     description: 'A vibrant hub of bio-energy. Securing this location allows us to harness natural growth cycles, accelerating resource production and regeneration across all sectors.',
     lore: 'Ancient tales speak of a slumbering forest spirit that nurtures the land. Every rustle of leaves is said to be a whisper of forgotten strategies.',
@@ -49,9 +35,7 @@ export const ISLAND_CONFIGS: IslandConfig[] = [
     developedImg: 'https://i.imgur.com/P77KdBm.png'   // Grassy developed with hut
   },
   { 
-    x: 62, y: 27, size: 38,
-    tabletX: 66, tabletY: 27, tabletSize: 38,
-    mobileX: 62, mobileY: 27, mobileSize: 38,
+    x: 740, y: 275, size: 360,
     name: 'The Sky-Piercer Spire',
     description: 'This commanding geological formation provides unparalleled surveillance and communication advantages. Its height is key to establishing a long-range strategic network.',
     lore: 'It is said that on a clear day, one can see the curvature of the world from its peak, granting a perspective that has inspired conquerors and visionaries alike.',
@@ -60,9 +44,7 @@ export const ISLAND_CONFIGS: IslandConfig[] = [
     developedImg: 'https://i.imgur.com/PehaeTj.png'   // Rocky developed with tower
   },
    { 
-    x: 35, y: 33, size: 30,
-    tabletX: 30, tabletY: 33, tabletSize: 29,
-    mobileX: 35, mobileY: 33, mobileSize: 30,
+    x: 240, y: 330, size: 320,
     name: 'The Crystal Citadel',
     description: 'These crystalline structures are natural data storage units, holding vast amounts of information. Accessing them is crucial for our intelligence and research divisions.',
     lore: 'The Citadel hums with a low frequency, singing the song of eons. Listeners claim to hear echoes of the past and whispers of the future in its vibrations.',
@@ -71,10 +53,8 @@ export const ISLAND_CONFIGS: IslandConfig[] = [
     developedImg: 'https://i.imgur.com/tAb3B6R.png'   // Icy developed with palace
   },
   { 
-    x: 50, y: 81, size: 30,
-    tabletX: 50, tabletY: 81, tabletSize: 29,
-    mobileX: 50, mobileY: 81, mobileSize: 30,
-    name: 'The Sunken Cove of Secrets',
+    x: 500, y: 820, size: 340,
+    name: 'Hospital',
     description: 'This location houses submerged relics of a past civilization, containing lost technologies. Its retrieval is paramount for our next wave of innovation.',
     lore: 'The tides here ebb and flow with an unnatural rhythm, revealing and concealing the ruins as if protecting the secrets of those who came before.',
     undevelopedImg: 'https://i.imgur.com/Ge6A2rq.png', // Sandy undeveloped
@@ -82,10 +62,8 @@ export const ISLAND_CONFIGS: IslandConfig[] = [
     developedImg: 'https://i.imgur.com/uQzA1T0.png'   // Sandy developed with cove
   },
   {
-    x: 37, y: 67, size: 32,
-    tabletX: 33, tabletY: 67, tabletSize: 31,
-    mobileX: 37, mobileY: 67, mobileSize: 32,
-    name: 'The Emberforge',
+    x: 260, y: 700, size: 320,
+    name: 'Connected Care',
     description: 'A nexus of geothermal power. The Emberforge is the only place with the resources and heat necessary to craft our most advanced alloys and power cores.',
     lore: 'It is believed the island is the cooling shell of a great beast, its heart still burning with immense power deep below the surface.',
     undevelopedImg: 'https://i.imgur.com/ArVh2pk.png', // Volcanic undeveloped
@@ -93,10 +71,8 @@ export const ISLAND_CONFIGS: IslandConfig[] = [
     developedImg: 'https://i.imgur.com/GfthALE.png'   // Volcanic developed with forge
   },
     { 
-    x: 62, y: 72, size: 30,
-    tabletX: 66, tabletY: 72, tabletSize: 29,
-    mobileX: 62, mobileY: 72, mobileSize: 30,
-    name: 'The Verdant Labyrinth',
+    x: 720, y: 720, size: 320,
+    name: 'Result',
     description: 'A dense, confusing woodland that is ideal for covert operations and ambushes. Mastering its winding paths gives us a powerful defensive and tactical advantage.',
     lore: 'The trees themselves are rumored to shift their positions, guiding the worthy and confounding intruders. Only those with true clarity of purpose can navigate its depths.',
     undevelopedImg: 'https://i.imgur.com/ipgx27U.png', // Forest undeveloped

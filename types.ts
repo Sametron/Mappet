@@ -1,33 +1,17 @@
+
 export interface IslandPosition {
   x: number;
   y: number;
-}
-
-export interface BridgeConfig extends IslandPosition {
-    tabletX?: number;
-    tabletY?: number;
-    tabletSize?: number;
-    mobileX?: number;
-    mobileY?: number;
-    mobileSize?: number;
-    size: number; // in vmin
-    opacity: number;
 }
 
 export interface IslandConfig extends IslandPosition {
   name: string;
   description: string;
   lore: string;
-  tabletX?: number;
-  tabletY?: number;
-  tabletSize?: number;
-  mobileX?: number;
-  mobileY?: number;
-  mobileSize?: number;
   undevelopedImg: string;
   activeImg?: string;
   developedImg: string;
-  size: number; // in vmin (viewport's smaller dimension)
+  size: number; // in virtual canvas units
 }
 
 export interface FooterImageConfig {
