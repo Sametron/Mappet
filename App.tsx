@@ -190,7 +190,9 @@ const App: React.FC = () => {
     setCompletionScreenDismissed(false);
   }, []);
 
-  const handleCloseCompletion = useCallback(() => setCompletionScreenDismissed(true), []);
+  const handleCompletionClose = useCallback(() => {
+    setCompletionScreenDismissed(true);
+  }, []);
   
   const handleIntroComplete = useCallback(() => setAppPhase('exploring'), []);
   const handleStart = useCallback(() => setAppPhase('intro'), []);
@@ -379,10 +381,15 @@ const App: React.FC = () => {
             videoUrl={VIDEOS[selectedIsland]}
             onComplete={handleVideoComplete}
             islandNumber={selectedIsland + 1}
+            island={ISLAND_CONFIGS[selectedIsland]}
           />
         )}
         
-        <CompletionScreen show={isComplete && !completionScreenDismissed} onClose={handleCloseCompletion} />
+        <CompletionScreen 
+          show={isComplete && !completionScreenDismissed} 
+          onPlayAgain={handleReset}
+          onClose={handleCompletionClose}
+        />
       </main>
     </>
   );

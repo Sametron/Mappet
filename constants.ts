@@ -112,6 +112,9 @@ export const VIDEOS: string[] = [
 // URL for the introductory MP4 video
 export const INTRO_VIDEO_URL: string = "https://big5hk.vercel.app/videos/intro.mp4";
 
+// URL for the celebratory outro video on the completion screen
+export const OUTRO_VIDEO_URL: string = "https://big5hk.vercel.app/videos/intro.mp4";
+
 // Controls intro video sound. Set to `false` for sound, `true` for muted. A user action is required for unmuted playback.
 export const INTRO_VIDEO_MUTED: boolean = false;
 
