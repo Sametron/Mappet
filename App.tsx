@@ -5,7 +5,7 @@ import StrategyCardModal from './components/StrategyCardModal';
 import LoadingScreen from './components/LoadingScreen';
 import CompletionScreen from './components/CompletionScreen';
 import IntroVideo from './components/IntroVideo';
-import { BACKGROUND_URL, ISLAND_CONFIGS, VIDEOS, SEQUENTIAL, FOOTER_IMAGE_CONFIG, HEADER_LOGO_CONFIG, VIRTUAL_CANVAS_WIDTH, VIRTUAL_CANVAS_HEIGHT, LOADING_GIF_CONFIG } from './constants';
+import { BACKGROUND_URL, START_SCREEN_BACKGROUND_URL, ISLAND_CONFIGS, VIDEOS, SEQUENTIAL, FOOTER_IMAGE_CONFIG, HEADER_LOGO_CONFIG, VIRTUAL_CANVAS_WIDTH, VIRTUAL_CANVAS_HEIGHT, LOADING_GIF_CONFIG } from './constants';
 import type { IslandStatus, DeviceType, IslandConfig, AppPhase } from './types';
 import ResetIcon from './components/icons/ResetIcon';
 import OrientationLock from './components/OrientationLock';
@@ -120,6 +120,7 @@ const App: React.FC = () => {
     const imageUrls = [
       LOADING_GIF_CONFIG.url,
       BACKGROUND_URL,
+      START_SCREEN_BACKGROUND_URL,
       HEADER_LOGO_CONFIG.url,
       FOOTER_IMAGE_CONFIG.url,
       ...ISLAND_CONFIGS.flatMap(config => [config.undevelopedImg, config.developedImg, config.activeImg, config.cardImg]).filter(Boolean) as string[]
@@ -129,7 +130,7 @@ const App: React.FC = () => {
     const totalImages = imageUrls.length;
 
     if (totalImages === 0) {
-        setAppPhase('intro');
+        setAppPhase('ready');
         return;
     }
 
@@ -140,7 +141,7 @@ const App: React.FC = () => {
 
       if (loadedCount === totalImages) {
         // A brief delay to prevent flashing if loading is too fast
-        setTimeout(() => setAppPhase('intro'), 500);
+        setTimeout(() => setAppPhase('ready'), 500);
       }
     };
 
@@ -189,9 +190,10 @@ const App: React.FC = () => {
     setCompletionScreenDismissed(false);
   }, []);
 
-  const handleCloseCompletion = () => setCompletionScreenDismissed(true);
+  const handleCloseCompletion = useCallback(() => setCompletionScreenDismissed(true), []);
   
-  const handleIntroComplete = () => setAppPhase('exploring');
+  const handleIntroComplete = useCallback(() => setAppPhase('exploring'), []);
+  const handleStart = useCallback(() => setAppPhase('intro'), []);
 
   const getIslandStatus = (index: number): IslandStatus => {
     if (unlockedIslands.includes(index)) return 'unlocked';
@@ -205,15 +207,72 @@ const App: React.FC = () => {
   const footerMaxHeight = getResponsiveValue(FOOTER_IMAGE_CONFIG.size, deviceType, FOOTER_IMAGE_CONFIG.mobileSize, FOOTER_IMAGE_CONFIG.tabletSize);
   
   const logoHeight = getResponsiveValue(HEADER_LOGO_CONFIG.size, deviceType, HEADER_LOGO_CONFIG.mobileSize, HEADER_LOGO_CONFIG.tabletSize);
+  
+  const showMainApp = appPhase === 'exploring';
 
   return (
     <>
       <OrientationLock />
       <LoadingScreen isLoading={appPhase === 'loading'} progress={loadingProgress} />
+
+      {appPhase === 'ready' && (
+        <div
+            className="fixed inset-0 z-[95] flex flex-col items-center justify-center bg-cover bg-center transition-opacity duration-1000 animate-fadeIn"
+            style={{ backgroundImage: `url(${START_SCREEN_BACKGROUND_URL})` }}
+        >
+            {/* Vignette Overlay */}
+            <div 
+                className="absolute inset-0"
+                style={{ background: 'radial-gradient(ellipse at center, transparent 35%, rgba(15, 36, 96, 0.95) 80%)' }}
+            ></div>
+            
+            {/* Mission Briefing Panel */}
+            <div className="relative z-10 text-center text-white max-w-3xl mx-4">
+                <div className="bg-black/40 backdrop-blur-lg border border-cyan-500/20 rounded-2xl shadow-2xl p-8 md:p-12 relative overflow-hidden">
+                    {/* Decorative corners */}
+                    <div className="absolute top-2 left-2 w-6 h-6 border-t-2 border-l-2 border-cyan-400/50 rounded-tl-xl opacity-50"></div>
+                    <div className="absolute top-2 right-2 w-6 h-6 border-t-2 border-r-2 border-cyan-400/50 rounded-tr-xl opacity-50"></div>
+                    <div className="absolute bottom-2 left-2 w-6 h-6 border-b-2 border-l-2 border-cyan-400/50 rounded-bl-xl opacity-50"></div>
+                    <div className="absolute bottom-2 right-2 w-6 h-6 border-b-2 border-r-2 border-cyan-400/50 rounded-br-xl opacity-50"></div>
+                    
+                    <div className="animate-slideUp" style={{ animationDelay: '0.3s' }}>
+                        <img
+                            src={HEADER_LOGO_CONFIG.url}
+                            alt={HEADER_LOGO_CONFIG.alt}
+                            className="mx-auto mb-6"
+                            style={{ height: `${logoHeight}vh`, maxHeight: '80px' }}
+                        />
+                        <h1 className="text-4xl md:text-5xl font-black font-orbitron tracking-wider text-shadow-glow mb-4">
+                            YOUR MISSION AWAITS
+                        </h1>
+                    </div>
+
+                    <div className="animate-slideUp" style={{ animationDelay: '0.5s' }}>
+                        <p className="text-lg md:text-xl text-cyan-200/90 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
+                            You have been selected to lead a critical expedition. Your objective: explore and activate five strategic pillars that will shape the future of healthcare in Hong Kong. Each unlocked location will reveal a piece of our grand vision.
+                        </p>
+                    </div>
+                    
+                    <div className="animate-slideUp" style={{ animationDelay: '0.7s' }}>
+                        <button
+                            onClick={handleStart}
+                            className="px-12 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xl rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/20 ring-2 ring-cyan-500/50 ring-offset-2 ring-offset-gray-900"
+                            aria-label="Begin the mission"
+                        >
+                            BEGIN MISSION
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      )}
+
       <IntroVideo show={appPhase === 'intro'} onComplete={handleIntroComplete} />
+      
       <main 
-        className={`relative w-screen h-screen overflow-hidden text-white font-inter transition-opacity duration-1000 ${appPhase === 'exploring' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`relative w-screen h-screen overflow-hidden text-white font-inter transition-opacity duration-1000 ${showMainApp ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         style={{ backgroundColor: '#0f2460' }}
+        aria-hidden={!showMainApp}
       >
         <Globe>
           {/* Layer 2: Hotspots */}
@@ -283,7 +342,6 @@ const App: React.FC = () => {
             alt={FOOTER_IMAGE_CONFIG.alt}
             className="w-full h-auto object-contain"
             style={{
-              // FIX: Corrected variable name from `maxHeight` to `footerMaxHeight`
               maxHeight: `${footerMaxHeight}vmin`,
             }}
           />
@@ -291,11 +349,22 @@ const App: React.FC = () => {
         
         <style>{`
           .text-shadow { text-shadow: 0 2px 4px rgba(0, 255, 229, 0.5); }
+          .text-shadow-glow { text-shadow: 0 0 15px rgba(0, 255, 255, 0.5), 0 0 30px rgba(0, 255, 255, 0.3); }
           @keyframes pulse-deep {
             0%, 100% { transform: scale(1); opacity: 0.5; }
             50% { transform: scale(2.5); opacity: 0; }
           }
           .animate-pulse-deep { animation: pulse-deep 2.5s infinite ease-out; }
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+          @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+          .animate-slideUp { animation: slideUp 0.6s 0.2s ease-out forwards; opacity: 0; }
         `}</style>
 
         {strategyCardIsland && (

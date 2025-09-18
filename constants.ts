@@ -1,11 +1,14 @@
 import type { IslandPosition, IslandConfig, FooterImageConfig, HeaderLogoConfig, LoadingGifConfig } from './types';
 
-// The main background image URL
-export const BACKGROUND_URL: string = 'https://i.imgur.com/SSdiUoB.png'; // A square fantasy map background
+// The main background image URL for the map view
+export const BACKGROUND_URL: string = 'https://big5hk.vercel.app/images/map.png'; // A square fantasy map background
+
+// The background for the 'Mission Briefing' start screen
+export const START_SCREEN_BACKGROUND_URL: string = 'https://big5hk.vercel.app/images/startbg.png'; // A dark, abstract, tech-focused background
 
 // New configuration object for the loading GIF
 export const LOADING_GIF_CONFIG: LoadingGifConfig = {
-  url: 'https://i.imgur.com/Lfhnf7z.gif',
+  url: 'https://big5hk.vercel.app/images/animatedloader.gif',
   size: 300, // Corresponds to Tailwind's w-32/h-32 (128px)
   x: 0,    // 0% offset, perfectly centered horizontally
   y: 0,    // 0% offset, perfectly centered vertically
@@ -23,7 +26,7 @@ export const CENTER: IslandPosition = { x: 512, y: 512 };
 
 // Configuration for the header logo
 export const HEADER_LOGO_CONFIG: HeaderLogoConfig = {
-  url: 'https://i.imgur.com/69Xk6nh.png', // A simple, white abstract logo
+  url: 'https://big5hk.vercel.app/images/logo.png', // A simple, white abstract logo
   alt: 'Bupa Strategy Logo',
   size: 10, // height in vh
   tabletSize: 10,
@@ -37,60 +40,60 @@ export const ISLAND_CONFIGS: IslandConfig[] = [
     name: 'Customer Growth',
     description: 'Stretch further into the mass affluent as a funder and partner with non-compete insurers. Be a partner of choice for the Government to capture PPP spending. Expanding alternative funding products (e.g. subscription plan) to drive retention and access to our healthcare ecosystem.',
     lore: 'Stretch further into the mass affluent as a funder and partner with non-compete insurers. Be a partner of choice for the Government to capture PPP spending. Expanding alternative funding products (e.g. subscription plan) to drive retention and access to our healthcare ecosystem.',
-    undevelopedImg: 'https://i.imgur.com/wdhqCSg.png',
-    activeImg: 'https://i.imgur.com/gKrZjiC.gif',
-    developedImg: 'https://i.imgur.com/8sVxmY4.png',
-    cardImg: 'https://i.imgur.com/x6xEKxV.png' // Glowing Tree Card
+    undevelopedImg: 'https://big5hk.vercel.app/images/Land01_empty.png',
+    activeImg: 'https://big5hk.vercel.app/images/Land01_active.gif',
+    developedImg: 'https://big5hk.vercel.app/images/Land01_developed.png',
+    cardImg: 'https://big5hk.vercel.app/images/Card01.png' // 01
   },
   { 
     x: 740, y: 275, size: 360,
     name: 'Outpatient Expansion',
     description: 'Invest in expanding our owned outpatient capacity, capturing broader footprint and enlarged clinics with a customer-centric design.',
     lore: 'Invest in expanding our owned outpatient capacity, capturing broader footprint and enlarged clinics with a customer-centric design.',
-    undevelopedImg: 'https://i.imgur.com/QS97oit.png',
-    activeImg: 'https://i.imgur.com/BefTGU5.gif',
-    developedImg: 'https://i.imgur.com/P7UZuOW.png',
-    cardImg: 'https://i.imgur.com/E2gCoBW.png' // Floating Crystal Mountain Card
+    undevelopedImg: 'https://big5hk.vercel.app/images/Land02_empty.png',
+    activeImg: 'https://big5hk.vercel.app/images/Land02_active.gif',
+    developedImg: 'https://big5hk.vercel.app/images/Land02_developed.png',
+    cardImg: 'https://big5hk.vercel.app/images/Card02.png' // 02
   },
    { 
     x: 240, y: 330, size: 320,
     name: 'Outpatient M&A',
     description: 'Pursue inorganic opportunities to more than double our market share to 20%',
     lore: 'Pursue inorganic opportunities to more than double our market share to 20%',
-    undevelopedImg: 'https://i.imgur.com/qa9ht0W.png',
-    activeImg: 'https://i.imgur.com/ov1FkcP.gif',
-    developedImg: 'https://i.imgur.com/udu1W78.png',
-    cardImg: 'https://i.imgur.com/gUAYd3C.png' // Icy Fortress Card
+    undevelopedImg: 'https://big5hk.vercel.app/images/Land03_empty.png',
+    activeImg: 'https://big5hk.vercel.app/images/Land03_active.gif',
+    developedImg: 'https://big5hk.vercel.app/images/Land03_developed.png',
+    cardImg: 'https://big5hk.vercel.app/images/Card03.png' // 03
   },
   { 
     x: 500, y: 820, size: 340,
     name: 'Hospital Strategy',
     description: 'Develop steerage for inpatient management.',
     lore: 'Develop steerage for inpatient management.',
-    undevelopedImg: 'https://i.imgur.com/Ge6A2rq.png',
-    activeImg: 'https://i.imgur.com/5DLzFB3.gif',
-    developedImg: 'https://i.imgur.com/AkR7Bnz.png',
-    cardImg: 'https://i.imgur.com/WLCQly5.png' // Mystical Oasis Card
+    undevelopedImg: 'https://big5hk.vercel.app/images/Land04_empty.png',
+    activeImg: 'https://big5hk.vercel.app/images/Land04_active.gif',
+    developedImg: 'https://big5hk.vercel.app/images/Land04_developed.png',
+    cardImg: 'https://big5hk.vercel.app/images/Card04.png' // 04
   },
   {
     x: 260, y: 700, size: 320,
     name: 'Digital Healthcare Journey',
     description: 'Experience a tailored healthcare journey with a Personalised Health Plan on Blua. Comprehensive support and access to a wide range of services designed for each customer’s unique needs.',
     lore: 'Experience a tailored healthcare journey with a Personalised Health Plan on Blua. Comprehensive support and access to a wide range of services designed for each customer’s unique needs.',
-    undevelopedImg: 'https://i.imgur.com/ArVh2pk.png',
-    activeImg: 'https://i.imgur.com/16n1gpg.gif',
-    developedImg: 'https://i.imgur.com/PPOHwDV.png',
-    cardImg: 'https://i.imgur.com/FTlubZ4.png' // Volcanic Forge Card
+    undevelopedImg: 'https://big5hk.vercel.app/images/Land05_empty.png',
+    activeImg: 'https://big5hk.vercel.app/images/Land05_active.gif',
+    developedImg: 'https://big5hk.vercel.app/images/Land05_developed.png',
+    cardImg: 'https://big5hk.vercel.app/images/Card05.png' // 05
   },
     { 
     x: 720, y: 720, size: 320,
     name: '4X Profit',
     description: 'Drive operational excellence and innovative service delivery to achieve a fourfold increase in profitability, while aiming to acquire and engage 100 million customers to solidify our leadership position in the healthcare sector.',
     lore: 'Drive operational excellence and innovative service delivery to achieve a fourfold increase in profitability, while aiming to acquire and engage 100 million customers to solidify our leadership position in the healthcare sector.',
-    undevelopedImg: 'https://i.imgur.com/ipgx27U.png',
-    activeImg: 'https://i.imgur.com/VfuHRUW.gif',
-    developedImg: 'https://i.imgur.com/QE0a09o.png',
-    cardImg: 'https://i.imgur.com/KFnE4bl.png' // Celestial Gateway Card
+    undevelopedImg: 'https://big5hk.vercel.app/images/Land06_empty.png',
+    activeImg: 'https://big5hk.vercel.app/images/Land06_active.gif',
+    developedImg: 'https://big5hk.vercel.app/images/Land06_developed.png',
+    cardImg: 'https://big5hk.vercel.app/images/Card06.png' // 06
   },
  
 ];
@@ -106,18 +109,18 @@ export const VIDEOS: string[] = [
   "https://cdn.pixabay.com/video/2023/06/13/166316-836775990_large.mp4",
 ];
 
-// New constant for the introductory YouTube video ID
-export const INTRO_YOUTUBE_VIDEO_ID: string = "bRPQmaFQiwM";
+// URL for the introductory MP4 video
+export const INTRO_VIDEO_URL: string = "https://big5hk.vercel.app/videos/intro.mp4";
 
-// New constant to control intro video sound. Set to `false` for sound, `true` for muted.
-export const INTRO_YOUTUBE_MUTED: boolean = false;
+// Controls intro video sound. Set to `false` for sound, `true` for muted. A user action is required for unmuted playback.
+export const INTRO_VIDEO_MUTED: boolean = false;
 
-// New constant to control intro video autoplay.
-export const INTRO_YOUTUBE_AUTOPLAY: boolean = true;
+// Controls intro video autoplay. Set to false to wait for a user action.
+export const INTRO_VIDEO_AUTOPLAY: boolean = false;
 
 // Configuration for the footer image
 export const FOOTER_IMAGE_CONFIG: FooterImageConfig = {
-  url: 'https://i.imgur.com/VR4nqDe.png',
+  url: 'https://big5hk.vercel.app/images/footer.png',
   alt: 'Bupa Logo',
   y: 2,       // vertical offset from bottom in percentage
   size: 22,  // max-height in vmin

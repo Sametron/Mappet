@@ -26,7 +26,7 @@ export interface FooterImageConfig {
 }
 
 export interface HeaderLogoConfig {
-  url: string;
+  url:string;
   alt: string;
   size: number; // height in vh
   tabletSize?: number;
@@ -44,4 +44,4 @@ export type IslandStatus = 'locked' | 'active' | 'unlocked';
 
 export type DeviceType = 'mobile' | 'tablet' | 'desktop';
 
-export type AppPhase = 'loading' | 'intro' | 'exploring';
+export type AppPhase = 'loading' | 'ready' | 'intro' | 'exploring';
