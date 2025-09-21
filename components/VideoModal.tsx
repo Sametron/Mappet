@@ -25,45 +25,59 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center z-50 animate-fadeIn p-4">
-      <div className="bg-gray-900/50 border border-cyan-500/50 rounded-lg shadow-2xl p-4 md:p-6 w-full max-w-6xl animate-slideUp">
-        <h2 className="text-2xl font-bold mb-4 font-orbitron text-cyan-300 text-center lg:text-left">Strategy Briefing: {island.name}</h2>
-        <div className="flex flex-col lg:flex-row gap-4 items-center">
-          {/* Video Player */}
-          <div className="w-full lg:w-2/3">
-            <div className="aspect-video bg-black rounded-md overflow-hidden">
-              <video
-                ref={videoRef}
-                src={videoUrl}
-                autoPlay
-                playsInline
-                controls
-                className="w-full h-full"
-                aria-label={`Demonstration video for ${island.name}`}
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-lg flex flex-col items-center justify-center z-50 animate-fadeIn p-4 md:p-8">
+      {/* Container for the stage and button */}
+      <div className="w-full max-w-6xl animate-slideUp">
+        {/* 16:9 Main Stage */}
+        <div className="relative aspect-video w-full bg-black rounded-lg shadow-2xl overflow-hidden border-2 border-cyan-500/30">
+          
+          {/* Cinematic Video Background */}
+          <video
+            ref={videoRef}
+            src={videoUrl}
+            autoPlay
+            playsInline
+            controls
+            className="absolute top-0 left-0 w-full h-full object-cover"
+            aria-label={`Demonstration video for ${island.name}`}
+          />
+          
+          {/* Header Overlay */}
+          <header className="absolute top-0 left-0 right-0 z-10 p-4 md:p-6 bg-gradient-to-b from-black/70 to-transparent pointer-events-none">
+            <h2 className="text-xl md:text-2xl font-bold font-orbitron text-cyan-300 text-shadow">
+              Strategy Briefing: {island.name}
+            </h2>
+          </header>
+
+          {/* Floating Strategy Card */}
+          <div className="absolute top-1/2 right-[5%] -translate-y-1/2 w-[25%] z-10">
+            <div 
+              className="relative group rounded-2xl overflow-hidden" 
+              style={{
+                filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.4)) drop-shadow(0 0 15px rgba(0, 255, 255, 0.3))'
+              }}
+            >
+              <img
+                src={island.cardImg}
+                alt={`Strategy card for ${island.name}`}
+                className="block w-full h-auto aspect-[7/12] object-cover"
               />
+              <div className="absolute inset-0 pointer-events-none animate-shimmer" />
             </div>
           </div>
-          {/* Strategy Card */}
-          <div className="w-full lg:w-1/3 flex justify-center">
-             <div className="relative group rounded-[26px] overflow-hidden border-2 border-white/10 shadow-lg">
-                <img
-                    src={island.cardImg}
-                    alt={`Strategy card for ${island.name}`}
-                    className="block max-h-[40vh] lg:max-h-[60vh] w-auto"
-                />
-                <div className="absolute inset-0 pointer-events-none animate-shimmer" />
-             </div>
-          </div>
         </div>
+        
+        {/* Action Button Below Frame */}
         <div className="mt-6 text-center">
           <button
             onClick={onComplete}
-            className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-lg hover:opacity-90 transition-opacity"
+            className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/20"
           >
             Mark as Complete
           </button>
         </div>
       </div>
+
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; }
@@ -76,6 +90,8 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
           to { transform: translateY(0); opacity: 1; }
         }
         .animate-slideUp { animation: slideUp 0.4s ease-out forwards; animation-delay: 0.1s; opacity: 0; }
+
+        .text-shadow { text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8); }
 
         @keyframes shimmer {
           0% {

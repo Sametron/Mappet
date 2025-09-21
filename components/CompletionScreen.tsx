@@ -15,13 +15,13 @@ const CARD_FORMATION_CONFIG = {
   },
   positions: [
     // Top Row (indices 0, 1, 2)
-    { x: '-30vmin', y: '-10vh', rotate: '-10deg' },
-    { x: '0vmin',   y: '-15vh', rotate: '0deg'   },
-    { x: '30vmin',  y: '-10vh', rotate: '10deg'  },
+    { x: '-30vmin', y: '-20vh', rotate: '-10deg' },
+    { x: '0vmin',   y: '-25vh', rotate: '0deg'  },
+    { x: '30vmin',  y: '-20vh', rotate: '10deg'  },
     // Bottom Row (indices 3, 4, 5)
-    { x: '-30vmin', y: '20vh',  rotate: '-10deg' },
-    { x: '0vmin',   y: '25vh',  rotate: '0deg'   },
-    { x: '30vmin',  y: '20vh',  rotate: '10deg'  },
+    { x: '-30vmin', y: '20vh', rotate: '10deg' },
+    { x: '0vmin',   y: '25vh', rotate: '0deg'   },
+    { x: '30vmin',  y: '20vh', rotate: '-10deg'  },
   ],
   converged: {
     y: '-10vh',
