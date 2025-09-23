@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
 import IslandHotspot from './components/IslandHotspot';
 import VideoModal from './components/VideoModal';
@@ -302,22 +303,23 @@ const App: React.FC = () => {
         </Globe>
 
         {/* Layer 4: UI */}
-        <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center bg-gradient-to-b from-black/50 to-transparent z-30">
-          <div className="flex items-center gap-4">
+        <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center bg-gradient-to-b from-black/50 to-transparent z-30">
+          <div className="flex items-center gap-2 md:gap-4">
             <img 
               src={HEADER_LOGO_CONFIG.url} 
               alt={HEADER_LOGO_CONFIG.alt}
+              className="max-h-[40px] md:max-h-none"
               style={{ height: `${logoHeight}vh` }}
             />
             <div>
-              <h1 className="text-3xl font-bold font-orbitron tracking-wider text-shadow">BUPA STRATEGY MAP</h1>
-              <p className="text-cyan-300">Unlock all strategic locations</p>
+              <h1 className="text-lg md:text-3xl font-bold font-orbitron tracking-wider text-shadow">BUPA STRATEGY MAP</h1>
+              <p className="text-xs md:text-base text-cyan-300">Unlock all strategic locations</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <div className='text-right'>
-              <span className="text-2xl font-bold font-orbitron">{unlockedIslands.length} / {ISLAND_CONFIGS.length}</span>
-              <div className="w-48 h-2 bg-gray-700 rounded-full mt-1">
+              <span className="text-xl md:text-2xl font-bold font-orbitron">{unlockedIslands.length} / {ISLAND_CONFIGS.length}</span>
+              <div className="w-24 md:w-48 h-2 bg-gray-700 rounded-full mt-1">
                 <div
                   className="h-2 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full transition-all duration-500"
                   style={{ width: `${(unlockedIslands.length / ISLAND_CONFIGS.length) * 100}%` }}
@@ -327,9 +329,9 @@ const App: React.FC = () => {
             <button
               onClick={handleReset}
               aria-label="Reset progress"
-              className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-colors backdrop-blur-sm"
+              className="p-2 md:p-3 bg-white/10 rounded-full hover:bg-white/20 transition-colors backdrop-blur-sm"
             >
-              <ResetIcon className="w-6 h-6"/>
+              <ResetIcon className="w-5 h-5 md:w-6 md:h-6"/>
             </button>
           </div>
         </header>
