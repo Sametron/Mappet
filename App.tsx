@@ -303,7 +303,7 @@ const App: React.FC = () => {
         </Globe>
 
         {/* Layer 4: UI */}
-        <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center bg-gradient-to-b from-black/50 to-transparent z-30">
+        <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-30">
           <div className="flex items-center gap-2 md:gap-4">
             <img 
               src={HEADER_LOGO_CONFIG.url} 
