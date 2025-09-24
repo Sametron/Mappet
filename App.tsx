@@ -291,15 +291,6 @@ const App: React.FC = () => {
               />
             ))}
           </div>
-
-          {/* Layer 3: Spotlight Overlay Effect */}
-          <div 
-            className="absolute inset-0 pointer-events-none z-20"
-            style={{
-                background: 'radial-gradient(circle at center, transparent 45%, rgba(15, 36, 96, 0.6) 75%)'
-            }}
-            aria-hidden="true"
-          />
         </Globe>
 
         {/* Layer 4: UI */}
