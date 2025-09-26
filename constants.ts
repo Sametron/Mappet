@@ -101,12 +101,12 @@ export const ISLAND_CONFIGS: IslandConfig[] = [
 // Optional list of MP4 links for each island
 // Using short, generic videos for demonstration
 export const VIDEOS: string[] = [
-  "https://cdn.pixabay.com/video/2023/09/26/179572-868619623_large.mp4",
-  "https://cdn.pixabay.com/video/2023/03/20/153655-807770177_large.mp4",
-  "https://cdn.pixabay.com/video/2024/02/12/198270-911896728_large.mp4",
-  "https://cdn.pixabay.com/video/2023/01/29/147819-794503251_large.mp4",
-  "https://cdn.pixabay.com/video/2023/06/13/166316-836775990_large.mp4",
-  "https://cdn.pixabay.com/video/2022/10/24/134919-764721473_large.mp4",
+  "https://big5hk.vercel.app/videos/01island.mp4",
+  "https://big5hk.vercel.app/videos/02island.mp4",
+  "https://big5hk.vercel.app/videos/03island.mp4",
+  "https://big5hk.vercel.app/videos/04island.mp4",
+  "https://big5hk.vercel.app/videos/05island.mp4",
+  "https://big5hk.vercel.app/videos/06island.mp4",
 ];
 
 // URL for the introductory MP4 video
