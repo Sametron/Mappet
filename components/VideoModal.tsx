@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import type { IslandConfig } from '../types';
 
@@ -14,6 +13,11 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
   const [videoHasEnded, setVideoHasEnded] = useState(false);
   
   const handleVideoEnd = useCallback(() => {
+    const video = videoRef.current;
+    if (video) {
+      video.pause();
+      video.currentTime = 0; // Reset for good measure
+    }
     setVideoHasEnded(true);
   }, []);
 
@@ -21,13 +25,20 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
     const videoElement = videoRef.current;
     if (videoElement) {
       videoElement.addEventListener('ended', handleVideoEnd);
+
+      // Play the video programmatically. This is allowed with sound because
+      // the modal is only shown after a direct user click on an island.
+      videoElement.play().catch(error => {
+        console.warn("Island video playback failed, skipping to card.", error);
+        onComplete();
+      });
     }
     return () => {
       if (videoElement) {
         videoElement.removeEventListener('ended', handleVideoEnd);
       }
     };
-  }, [handleVideoEnd]);
+  }, [handleVideoEnd, onComplete]);
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-lg flex flex-col items-center justify-center z-50 animate-fadeIn p-4 md:p-8">
@@ -40,9 +51,7 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
           <video
             ref={videoRef}
             src={videoUrl}
-            autoPlay
             playsInline
-            controls
             className="absolute top-0 left-0 w-full h-full object-cover"
             aria-label={`Demonstration video for ${island.name}`}
           />
@@ -51,6 +60,18 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
               Strategy Briefing: {island.name}
             </h2>
           </header>
+          <button
+            onClick={handleVideoEnd}
+            className="absolute bottom-4 right-4 z-10 px-5 py-2 bg-black/50 backdrop-blur-sm text-white/80 rounded-lg border border-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 animate-fadeInDelayed text-sm"
+            aria-label="Skip strategy briefing"
+          >
+            <span className="flex items-center gap-2 font-semibold">
+              SKIP
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              </svg>
+            </span>
+          </button>
         </div>
       </div>
       
@@ -97,6 +118,15 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
           to { opacity: 1; }
         }
         .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+        
+        @keyframes fadeInDelayed {
+          0% { opacity: 0; transform: translateY(10px); }
+          66% { opacity: 0; transform: translateY(10px); } /* Wait for 2s */
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeInDelayed {
+          animation: fadeInDelayed 3s ease-out forwards;
+        }
 
         @keyframes slideUp {
           from { transform: translateY(30px); opacity: 0; }
