@@ -1,3 +1,4 @@
+
 import type { IslandPosition, IslandConfig, FooterImageConfig, HeaderLogoConfig, LoadingGifConfig } from './types';
 
 // The main background image URL for the map view
@@ -79,7 +80,7 @@ export const ISLAND_CONFIGS: IslandConfig[] = [
     x: 260, y: 700, size: 320,
     name: 'Digital Healthcare Journey',
     description: 'Experience a tailored healthcare journey with a Personalised Health Plan on Blua. Comprehensive support and access to a wide range of services designed for each customer’s unique needs.',
-    lore: 'Experience a tailored healthcare journey with a Personalised Health Plan on Blua. Comprehensive support and access to a wide range of services designed for each customer’s unique needs.',
+    lore: 'Experience a tailored healthcare journey with a Personalised Health Plan on Blua. Comprehensive support and access to a wide of services designed for each customer’s unique needs.',
     undevelopedImg: 'https://big5hk.vercel.app/images/Land05_empty.png',
     activeImg: 'https://big5hk.vercel.app/images/Land05_active.gif',
     developedImg: 'https://big5hk.vercel.app/images/Land05_developed.png',
@@ -112,11 +113,17 @@ export const VIDEOS: string[] = [
 // URL for the introductory MP4 video
 export const INTRO_VIDEO_URL: string = "https://big5hk.vercel.app/videos/intro.mp4";
 
+// URL for the second introductory MP4 video. Using outro as placeholder.
+export const SECOND_INTRO_VIDEO_URL: string = "https://big5hk.vercel.app/videos/intro2.mp4";
+
 // URL for the celebratory outro video on the completion screen
 export const OUTRO_VIDEO_URL: string = "https://big5hk.vercel.app/videos/ending.mp4";
 
 // Controls intro video sound. Set to `false` for sound, `true` for muted. A user action is required for unmuted playback.
 export const INTRO_VIDEO_MUTED: boolean = false;
+
+// Controls second intro video sound. Set to `false` for sound as requested.
+export const SECOND_INTRO_VIDEO_MUTED: boolean = false;
 
 // Controls intro video autoplay. Set to false to wait for a user action.
 export const INTRO_VIDEO_AUTOPLAY: boolean = false;

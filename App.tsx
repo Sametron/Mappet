@@ -1,12 +1,11 @@
-
-import React, { useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import IslandHotspot from './components/IslandHotspot';
 import VideoModal from './components/VideoModal';
 import StrategyCardModal from './components/StrategyCardModal';
 import LoadingScreen from './components/LoadingScreen';
 import CompletionScreen from './components/CompletionScreen';
 import IntroVideo from './components/IntroVideo';
-import { BACKGROUND_URL, START_SCREEN_BACKGROUND_URL, ISLAND_CONFIGS, VIDEOS, SEQUENTIAL, FOOTER_IMAGE_CONFIG, HEADER_LOGO_CONFIG, VIRTUAL_CANVAS_WIDTH, VIRTUAL_CANVAS_HEIGHT, LOADING_GIF_CONFIG } from './constants';
+import { BACKGROUND_URL, START_SCREEN_BACKGROUND_URL, ISLAND_CONFIGS, VIDEOS, SEQUENTIAL, FOOTER_IMAGE_CONFIG, HEADER_LOGO_CONFIG, VIRTUAL_CANVAS_WIDTH, VIRTUAL_CANVAS_HEIGHT, LOADING_GIF_CONFIG, SECOND_INTRO_VIDEO_URL, SECOND_INTRO_VIDEO_MUTED } from './constants';
 import type { IslandStatus, DeviceType, IslandConfig, AppPhase } from './types';
 import ResetIcon from './components/icons/ResetIcon';
 import OrientationLock from './components/OrientationLock';
@@ -96,6 +95,7 @@ const App: React.FC = () => {
   const [recentlyUnlocked, setRecentlyUnlocked] = useState<number | null>(null);
   const [deviceType, setDeviceType] = useState<DeviceType>('desktop');
   const [completionScreenDismissed, setCompletionScreenDismissed] = useState(false);
+  const secondIntroVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -195,7 +195,32 @@ const App: React.FC = () => {
     setCompletionScreenDismissed(true);
   }, []);
   
-  const handleIntroComplete = useCallback(() => setAppPhase('exploring'), []);
+  const handleIntroComplete = useCallback(() => setAppPhase('secondIntroPrompt'), []);
+  
+  const handleSecondIntroComplete = useCallback(() => setAppPhase('exploring'), []);
+  
+  const handleStartSecondIntro = useCallback(() => {
+    const video = secondIntroVideoRef.current;
+    if (video) {
+        video.muted = SECOND_INTRO_VIDEO_MUTED;
+        video.loop = false;
+        video.currentTime = 0;
+        video.play().catch(error => {
+            console.warn("Second intro video playback failed. Skipping.", error);
+            handleSecondIntroComplete();
+        });
+        setAppPhase('secondIntro');
+    }
+  }, [handleSecondIntroComplete]);
+
+  const handleSkipSecondIntro = useCallback(() => {
+    const video = secondIntroVideoRef.current;
+    if (video) {
+        video.pause();
+    }
+    handleSecondIntroComplete();
+  }, [handleSecondIntroComplete]);
+
   const handleStart = useCallback(() => setAppPhase('intro'), []);
 
   const getIslandStatus = (index: number): IslandStatus => {
@@ -271,6 +296,66 @@ const App: React.FC = () => {
       )}
 
       <IntroVideo show={appPhase === 'intro'} onComplete={handleIntroComplete} />
+      
+      {(appPhase === 'secondIntroPrompt' || appPhase === 'secondIntro') && (
+        <div className="fixed inset-0 z-[95] flex flex-col items-center justify-center bg-black animate-fadeIn">
+          <video
+            ref={secondIntroVideoRef}
+            src={SECOND_INTRO_VIDEO_URL}
+            onEnded={handleSecondIntroComplete}
+            muted
+            playsInline
+            preload="auto"
+            className="absolute top-0 left-0 w-full h-full object-cover"
+          />
+
+          {appPhase === 'secondIntroPrompt' && (
+            <>
+              <div 
+                className="absolute inset-0"
+                style={{ background: 'radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.8) 80%)' }}
+              ></div>
+              
+              <div className="relative z-10 text-center text-white max-w-3xl mx-4">
+                  <div className="bg-black/40 backdrop-blur-lg border border-cyan-500/20 rounded-2xl shadow-2xl p-8 md:p-12 relative overflow-hidden animate-slideUp">
+                      <div className="absolute top-2 left-2 w-6 h-6 border-t-2 border-l-2 border-cyan-400/50 rounded-tl-xl opacity-50"></div>
+                      <div className="absolute top-2 right-2 w-6 h-6 border-t-2 border-r-2 border-cyan-400/50 rounded-tr-xl opacity-50"></div>
+                      <div className="absolute bottom-2 left-2 w-6 h-6 border-b-2 border-l-2 border-cyan-400/50 rounded-bl-xl opacity-50"></div>
+                      <div className="absolute bottom-2 right-2 w-6 h-6 border-b-2 border-r-2 border-cyan-400/50 rounded-br-xl opacity-50"></div>
+                      <h2 className="text-3xl md:text-4xl font-bold font-orbitron text-white text-shadow-glow mb-8">
+                          Every box takes us closer to the future.
+                      </h2>
+                      <button
+                          onClick={handleStartSecondIntro}
+                          className="px-12 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xl rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/20 ring-2 ring-cyan-500/50 ring-offset-2 ring-offset-gray-900"
+                          aria-label="Unbox now"
+                      >
+                          Unbox now
+                      </button>
+                  </div>
+              </div>
+            </>
+          )}
+
+          {appPhase === 'secondIntro' && (
+            <>
+              <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
+              <button
+                  onClick={handleSkipSecondIntro}
+                  className="absolute bottom-8 right-8 z-10 px-5 py-2 bg-black/50 backdrop-blur-sm text-white/80 rounded-lg border border-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 animate-fadeInDelayed text-sm"
+                  aria-label="Skip introduction video"
+              >
+                  <span className="flex items-center gap-2 font-semibold">
+                      SKIP
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                      </svg>
+                  </span>
+              </button>
+            </>
+          )}
+        </div>
+      )}
       
       <main 
         className={`relative w-screen h-screen overflow-hidden text-white font-inter transition-opacity duration-1000 ${showMainApp ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
@@ -360,6 +445,12 @@ const App: React.FC = () => {
             to { transform: translateY(0); opacity: 1; }
           }
           .animate-slideUp { animation: slideUp 0.6s 0.2s ease-out forwards; opacity: 0; }
+          @keyframes fadeInDelayed {
+            0% { opacity: 0; transform: translateY(10px); }
+            66% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+          .animate-fadeInDelayed { animation: fadeInDelayed 3s ease-out forwards; }
         `}</style>
 
         {strategyCardIsland && (

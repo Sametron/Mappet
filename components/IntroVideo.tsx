@@ -1,12 +1,20 @@
+
 import React, { useEffect, useRef } from 'react';
 import { INTRO_VIDEO_URL, INTRO_VIDEO_MUTED } from '../constants';
 
 interface IntroVideoProps {
   show: boolean;
   onComplete: () => void;
+  videoUrl?: string;
+  muted?: boolean;
 }
 
-const IntroVideo: React.FC<IntroVideoProps> = ({ show, onComplete }) => {
+const IntroVideo: React.FC<IntroVideoProps> = ({ 
+  show, 
+  onComplete, 
+  videoUrl = INTRO_VIDEO_URL,
+  muted = INTRO_VIDEO_MUTED 
+}) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -39,9 +47,9 @@ const IntroVideo: React.FC<IntroVideoProps> = ({ show, onComplete }) => {
     <div className="fixed inset-0 z-[90] bg-black flex items-center justify-center animate-fadeIn">
       <video
         ref={videoRef}
-        src={INTRO_VIDEO_URL}
+        src={videoUrl}
         onEnded={onComplete}
-        muted={INTRO_VIDEO_MUTED}
+        muted={muted}
         playsInline
         className="absolute top-0 left-0 w-full h-full object-cover"
         aria-label="Introduction video"

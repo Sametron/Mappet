@@ -1,3 +1,4 @@
+
 export interface IslandPosition {
   x: number;
   y: number;
@@ -44,4 +45,4 @@ export type IslandStatus = 'locked' | 'active' | 'unlocked';
 
 export type DeviceType = 'mobile' | 'tablet' | 'desktop';
 
-export type AppPhase = 'loading' | 'ready' | 'intro' | 'exploring';
+export type AppPhase = 'loading' | 'ready' | 'intro' | 'secondIntroPrompt' | 'secondIntro' | 'exploring';
