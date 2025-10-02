@@ -1,4 +1,3 @@
-
 import type { IslandPosition, IslandConfig, FooterImageConfig, HeaderLogoConfig, LoadingGifConfig } from './types';
 
 // The main background image URL for the map view
@@ -118,6 +117,12 @@ export const SECOND_INTRO_VIDEO_URL: string = "https://big5hk.vercel.app/videos/
 
 // URL for the celebratory outro video on the completion screen
 export const OUTRO_VIDEO_URL: string = "https://big5hk.vercel.app/videos/ending.mp4";
+
+// Configuration for the "Do you know?" prompt in the video modal
+export const VIDEO_MODAL_PROMPT_CONFIG = {
+  title: "Do you know?",
+  buttonText: "Let's find out"
+};
 
 // Controls intro video sound. Set to `false` for sound, `true` for muted. A user action is required for unmuted playback.
 export const INTRO_VIDEO_MUTED: boolean = false;

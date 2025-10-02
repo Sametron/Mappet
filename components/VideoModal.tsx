@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import type { IslandConfig } from '../types';
+import { VIDEO_MODAL_PROMPT_CONFIG } from '../constants';
 
 interface VideoModalProps {
   videoUrl: string;
@@ -10,18 +11,24 @@ interface VideoModalProps {
 
 const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoHasEnded, setVideoHasEnded] = useState(false);
-  
+  const [modalState, setModalState] = useState<'prompt' | 'video' | 'card'>('prompt');
+
+  const handleStartVideo = () => {
+    setModalState('video');
+  };
+
   const handleVideoEnd = useCallback(() => {
     const video = videoRef.current;
     if (video) {
       video.pause();
       video.currentTime = 0; // Reset for good measure
     }
-    setVideoHasEnded(true);
+    setModalState('card');
   }, []);
 
   useEffect(() => {
+    if (modalState !== 'video') return;
+    
     const videoElement = videoRef.current;
     if (videoElement) {
       videoElement.addEventListener('ended', handleVideoEnd);
@@ -38,14 +45,34 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
         videoElement.removeEventListener('ended', handleVideoEnd);
       }
     };
-  }, [handleVideoEnd, onComplete]);
+  }, [modalState, handleVideoEnd, onComplete]);
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-lg flex flex-col items-center justify-center z-50 animate-fadeIn p-4 md:p-8">
+      {/* Prompt View Wrapper */}
+      <div
+        className={`absolute inset-0 flex flex-col items-center justify-center p-4 transition-all duration-500 ease-in ${modalState === 'prompt' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        aria-hidden={modalState !== 'prompt'}
+      >
+        <div className="text-center animate-slideUp">
+          <h2 className="text-7xl md:text-9xl font-bold font-orbitron text-white text-shadow-glow mb-10">
+            {VIDEO_MODAL_PROMPT_CONFIG.title}
+          </h2>
+        </div>
+        <div className="mt-8 animate-slideUp" style={{ animationDelay: '200ms' }}>
+          <button
+            onClick={handleStartVideo}
+            className="px-12 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xl rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/20"
+          >
+            {VIDEO_MODAL_PROMPT_CONFIG.buttonText}
+          </button>
+        </div>
+      </div>
+
       {/* Video View Wrapper */}
       <div
-        className={`w-full max-w-6xl transition-all duration-500 ease-out ${videoHasEnded ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}
-        aria-hidden={videoHasEnded}
+        className={`w-full max-w-6xl transition-all duration-500 ease-out ${modalState === 'video' ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}
+        aria-hidden={modalState !== 'video'}
       >
         <div className="relative aspect-video w-full bg-black rounded-lg shadow-2xl overflow-hidden border-2 border-cyan-500/30">
           <video
@@ -77,9 +104,9 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
       
       {/* Unlocked Card View Wrapper */}
       <div 
-        className={`absolute inset-0 flex flex-col items-center justify-center p-4 transition-all duration-500 ease-in ${videoHasEnded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-        style={{ transitionDelay: videoHasEnded ? '300ms' : '0ms' }}
-        aria-hidden={!videoHasEnded}
+        className={`absolute inset-0 flex flex-col items-center justify-center p-4 transition-all duration-500 ease-in ${modalState === 'card' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        style={{ transitionDelay: modalState === 'card' ? '300ms' : '0ms' }}
+        aria-hidden={modalState !== 'card'}
       >
         <div className="text-center animate-slideUp" style={{ animationDelay: '100ms' }}>
             <h2 className="text-3xl md:text-4xl font-bold font-orbitron text-white text-shadow-glow mb-8">
