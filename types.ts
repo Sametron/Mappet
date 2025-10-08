@@ -1,4 +1,3 @@
-
 export interface IslandPosition {
   x: number;
   y: number;
@@ -13,6 +12,7 @@ export interface IslandConfig extends IslandPosition {
   developedImg: string;
   size: number; // in virtual canvas units
   cardImg: string;
+  promptQuestion?: string;
 }
 
 export interface FooterImageConfig {

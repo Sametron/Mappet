@@ -364,7 +364,7 @@ const App: React.FC = () => {
       >
         <Globe>
           {/* Layer 2: Hotspots */}
-          <div className="absolute inset-0 z-10">
+          <div className="absolute inset-0 z-40">
             {ISLAND_CONFIGS.map((config, index) => (
               <IslandHotspot
                 key={index}

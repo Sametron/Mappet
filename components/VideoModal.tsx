@@ -12,6 +12,7 @@ interface VideoModalProps {
 const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [modalState, setModalState] = useState<'prompt' | 'video' | 'card'>('prompt');
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const handleStartVideo = () => {
     setModalState('video');
@@ -25,13 +26,31 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
     }
     setModalState('card');
   }, []);
+  
+  const togglePlayPause = useCallback(() => {
+    const video = videoRef.current;
+    if (video) {
+      if (video.paused) {
+        video.play().catch(err => console.error("Video play failed:", err));
+      } else {
+        video.pause();
+      }
+    }
+  }, []);
 
+  // FIX: Moved `handlePlay` and `handlePause` function declarations to a higher scope
+  // within the `useEffect` to make them accessible to the cleanup function, fixing a reference error.
   useEffect(() => {
     if (modalState !== 'video') return;
     
     const videoElement = videoRef.current;
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+
     if (videoElement) {
       videoElement.addEventListener('ended', handleVideoEnd);
+      videoElement.addEventListener('play', handlePlay);
+      videoElement.addEventListener('pause', handlePause);
 
       // Play the video programmatically. This is allowed with sound because
       // the modal is only shown after a direct user click on an island.
@@ -43,6 +62,8 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
     return () => {
       if (videoElement) {
         videoElement.removeEventListener('ended', handleVideoEnd);
+        videoElement.removeEventListener('play', handlePlay);
+        videoElement.removeEventListener('pause', handlePause);
       }
     };
   }, [modalState, handleVideoEnd, onComplete]);
@@ -55,8 +76,8 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
         aria-hidden={modalState !== 'prompt'}
       >
         <div className="text-center animate-slideUp">
-          <h2 className="text-7xl md:text-9xl font-bold font-orbitron text-white text-shadow-glow mb-10">
-            {VIDEO_MODAL_PROMPT_CONFIG.title}
+          <h2 className="text-4xl md:text-6xl font-bold font-orbitron text-white text-shadow-glow mb-10 max-w-4xl">
+            {island.promptQuestion || VIDEO_MODAL_PROMPT_CONFIG.title}
           </h2>
         </div>
         <div className="mt-8 animate-slideUp" style={{ animationDelay: '200ms' }}>
@@ -87,18 +108,39 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
               Strategy Briefing: {island.name}
             </h2>
           </header>
-          <button
-            onClick={handleVideoEnd}
-            className="absolute bottom-4 right-4 z-10 px-5 py-2 bg-black/50 backdrop-blur-sm text-white/80 rounded-lg border border-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 animate-fadeInDelayed text-sm"
-            aria-label="Skip strategy briefing"
-          >
-            <span className="flex items-center gap-2 font-semibold">
-              SKIP
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-              </svg>
-            </span>
-          </button>
+          <div className="absolute bottom-4 right-4 z-10 flex items-center gap-3 animate-fadeInDelayed">
+            <button
+              onClick={togglePlayPause}
+              className="px-4 py-2 bg-black/50 backdrop-blur-sm text-white/80 rounded-lg border border-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 text-sm"
+              aria-label={isPlaying ? 'Pause video' : 'Play video'}
+            >
+              <span className="flex items-center gap-2 font-semibold">
+                {isPlaying ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
+                    PAUSE
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                    PLAY
+                  </>
+                )}
+              </span>
+            </button>
+            <button
+              onClick={handleVideoEnd}
+              className="px-5 py-2 bg-black/50 backdrop-blur-sm text-white/80 rounded-lg border border-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 text-sm"
+              aria-label="Skip strategy briefing"
+            >
+              <span className="flex items-center gap-2 font-semibold">
+                SKIP
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                </svg>
+              </span>
+            </button>
+          </div>
         </div>
       </div>
       
