@@ -95,6 +95,7 @@ const App: React.FC = () => {
   const [recentlyUnlocked, setRecentlyUnlocked] = useState<number | null>(null);
   const [deviceType, setDeviceType] = useState<DeviceType>('desktop');
   const [completionScreenDismissed, setCompletionScreenDismissed] = useState(false);
+  const [isSecondIntroPlaying, setIsSecondIntroPlaying] = useState(false);
   const secondIntroVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -153,6 +154,23 @@ const App: React.FC = () => {
       img.onerror = onImageLoad; // Treat error as loaded so app doesn't hang
     });
   }, []);
+  
+  useEffect(() => {
+    const video = secondIntroVideoRef.current;
+    if (!video || appPhase !== 'secondIntro') return;
+
+    const handlePlay = () => setIsSecondIntroPlaying(true);
+    const handlePause = () => setIsSecondIntroPlaying(false);
+
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
+
+    return () => {
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handlePause);
+    };
+  }, [appPhase]);
+
 
   const isComplete = unlockedIslands.length === ISLAND_CONFIGS.length;
 
@@ -220,6 +238,17 @@ const App: React.FC = () => {
     }
     handleSecondIntroComplete();
   }, [handleSecondIntroComplete]);
+
+  const toggleSecondIntroPlayPause = useCallback(() => {
+    const video = secondIntroVideoRef.current;
+    if (video) {
+      if (video.paused) {
+        video.play().catch(error => console.error("Video play failed:", error));
+      } else {
+        video.pause();
+      }
+    }
+  }, []);
 
   const handleStart = useCallback(() => setAppPhase('intro'), []);
 
@@ -340,18 +369,39 @@ const App: React.FC = () => {
           {appPhase === 'secondIntro' && (
             <>
               <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
-              <button
-                  onClick={handleSkipSecondIntro}
-                  className="absolute bottom-8 right-8 z-10 px-5 py-2 bg-black/50 backdrop-blur-sm text-white/80 rounded-lg border border-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 animate-fadeInDelayed text-sm"
-                  aria-label="Skip introduction video"
-              >
-                  <span className="flex items-center gap-2 font-semibold">
-                      SKIP
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                      </svg>
-                  </span>
-              </button>
+                <div className="absolute bottom-8 right-8 z-10 flex items-center gap-3 animate-fadeInDelayed">
+                  <button
+                    onClick={toggleSecondIntroPlayPause}
+                    className="px-4 py-2 bg-black/50 backdrop-blur-sm text-white/80 rounded-lg border border-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 text-sm"
+                    aria-label={isSecondIntroPlaying ? 'Pause intro video' : 'Play intro video'}
+                  >
+                    <span className="flex items-center gap-2 font-semibold">
+                      {isSecondIntroPlaying ? (
+                        <>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
+                          PAUSE
+                        </>
+                      ) : (
+                        <>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                          PLAY
+                        </>
+                      )}
+                    </span>
+                  </button>
+                  <button
+                      onClick={handleSkipSecondIntro}
+                      className="px-5 py-2 bg-black/50 backdrop-blur-sm text-white/80 rounded-lg border border-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 text-sm"
+                      aria-label="Skip introduction video"
+                  >
+                      <span className="flex items-center gap-2 font-semibold">
+                          SKIP
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                          </svg>
+                      </span>
+                  </button>
+                </div>
             </>
           )}
         </div>
