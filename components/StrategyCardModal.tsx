@@ -4,9 +4,10 @@ import type { IslandConfig } from '../types';
 interface StrategyCardModalProps {
   island: IslandConfig;
   onClose: () => void;
+  onWatchAgain: () => void;
 }
 
-const StrategyCardModal: React.FC<StrategyCardModalProps> = ({ island, onClose }) => {
+const StrategyCardModal: React.FC<StrategyCardModalProps> = ({ island, onClose, onWatchAgain }) => {
   const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
@@ -19,7 +20,7 @@ const StrategyCardModal: React.FC<StrategyCardModalProps> = ({ island, onClose }
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleClose = () => {
     setIsClosing(true);
@@ -28,20 +29,18 @@ const StrategyCardModal: React.FC<StrategyCardModalProps> = ({ island, onClose }
 
   return (
     <div
-      className={`fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}
+      className={`fixed inset-0 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center z-50 p-4 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
       aria-label={`${island.name} Strategy Card`}
     >
       <div
-        className={`relative transition-all duration-300 ease-out cursor-pointer ${isClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}
+        className={`relative transition-all duration-300 ease-out ${isClosing ? 'scale-95' : 'scale-100'}`}
         onClick={(e) => e.stopPropagation()} // Prevent closing modal when clicking the card container itself
-        style={{ animationDelay: '50ms' }}
       >
         <div 
-            className="relative w-[40vh] max-w-[90vw] aspect-[7/12] group rounded-[32px] overflow-hidden shadow-2xl border-2 border-white/20 cursor-pointer"
-            onClick={handleClose}
+            className="relative w-[40vh] max-w-[90vw] aspect-[7/12] group rounded-[32px] overflow-hidden shadow-2xl border-2 border-white/20"
         >
           <img
             src={island.cardImg}
@@ -51,6 +50,27 @@ const StrategyCardModal: React.FC<StrategyCardModalProps> = ({ island, onClose }
           <div className="absolute inset-0 pointer-events-none animate-shimmer" />
         </div>
       </div>
+      
+      <div className={`mt-6 text-center transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`}>
+          <button
+            onClick={onWatchAgain}
+            className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/20"
+            aria-label={`Re-watch video for ${island.name}`}
+          >
+            Watch Again
+          </button>
+      </div>
+
+       <button
+          onClick={handleClose}
+          className={`absolute top-4 right-4 text-gray-300 bg-gray-900/50 rounded-full p-2 hover:text-white hover:bg-gray-800/80 transition-all duration-300 z-10 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
+          aria-label="Close strategy card"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+      </button>
+
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; }

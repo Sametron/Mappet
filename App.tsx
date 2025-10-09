@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect, useLayoutEffect, useR
 import IslandHotspot from './components/IslandHotspot';
 import VideoModal from './components/VideoModal';
 import StrategyCardModal from './components/StrategyCardModal';
+import ReplayVideoModal from './components/ReplayVideoModal';
 import LoadingScreen from './components/LoadingScreen';
 import CompletionScreen from './components/CompletionScreen';
 import IntroVideo from './components/IntroVideo';
@@ -92,6 +93,7 @@ const App: React.FC = () => {
   const [unlockedIslands, setUnlockedIslands] = useState<number[]>([]);
   const [selectedIsland, setSelectedIsland] = useState<number | null>(null);
   const [strategyCardIsland, setStrategyCardIsland] = useState<IslandConfig | null>(null);
+  const [replayingIslandIndex, setReplayingIslandIndex] = useState<number | null>(null);
   const [recentlyUnlocked, setRecentlyUnlocked] = useState<number | null>(null);
   const [deviceType, setDeviceType] = useState<DeviceType>('desktop');
   const [completionScreenDismissed, setCompletionScreenDismissed] = useState(false);
@@ -238,6 +240,19 @@ const App: React.FC = () => {
     }
     handleSecondIntroComplete();
   }, [handleSecondIntroComplete]);
+  
+  const handleWatchAgain = useCallback(() => {
+    if (strategyCardIsland) {
+      const islandIndex = ISLAND_CONFIGS.findIndex(c => c.name === strategyCardIsland.name);
+      if (islandIndex !== -1) {
+        setStrategyCardIsland(null); // Close the card modal first
+        // A small delay to allow the card modal to animate out before the video modal animates in
+        setTimeout(() => {
+          setReplayingIslandIndex(islandIndex);
+        }, 300);
+      }
+    }
+  }, [strategyCardIsland]);
 
   const toggleSecondIntroPlayPause = useCallback(() => {
     const video = secondIntroVideoRef.current;
@@ -445,11 +460,51 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2 md:gap-4">
             <div className='text-right'>
               <span className="text-xl md:text-2xl font-bold font-orbitron">{unlockedIslands.length} / {ISLAND_CONFIGS.length}</span>
-              <div className="w-24 md:w-48 h-2 bg-gray-700 rounded-full mt-1">
-                <div
-                  className="h-2 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full transition-all duration-500"
-                  style={{ width: `${(unlockedIslands.length / ISLAND_CONFIGS.length) * 100}%` }}
-                ></div>
+              <div className="flex justify-end gap-1.5 md:gap-2 mt-2" role="group" aria-label="Mission Progress">
+                {ISLAND_CONFIGS.map((island, index) => {
+                  const status = getIslandStatus(index);
+                  const isUnlocked = status === 'unlocked';
+                  const isActive = status === 'active';
+
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => isUnlocked && setStrategyCardIsland(island)}
+                      disabled={!isUnlocked}
+                      className={`relative w-6 h-6 md:w-8 md:h-8 rounded-full border-2 transition-all duration-300 group flex items-center justify-center ${
+                        isUnlocked 
+                          ? 'bg-cyan-500/80 border-cyan-400 cursor-pointer hover:bg-cyan-400 hover:scale-110' 
+                          : isActive 
+                            ? 'bg-transparent border-cyan-400 animate-pulse-glow-border' 
+                            : 'bg-gray-800/50 border-gray-600 cursor-not-allowed'
+                      }`}
+                      aria-label={
+                        isUnlocked 
+                          ? `View strategy for ${island.name}` 
+                          : isActive 
+                            ? `${island.name} is the next objective`
+                            : `${island.name} is locked`
+                      }
+                    >
+                      {isUnlocked ? (
+                        <span className="text-white font-bold text-xs md:text-sm select-none">
+                          {index + 1}
+                        </span>
+                      ) : isActive ? (
+                        <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-cyan-400"></div>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 md:h-4 md:h-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                      {/* Tooltip */}
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-xs p-2 bg-gray-900/80 backdrop-blur-sm rounded-md text-white text-xs text-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+                        {island.name}
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-900/80"></div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
             <button
@@ -501,13 +556,27 @@ const App: React.FC = () => {
             100% { opacity: 1; transform: translateY(0); }
           }
           .animate-fadeInDelayed { animation: fadeInDelayed 3s ease-out forwards; }
+          @keyframes pulse-glow-border {
+            0%, 100% { box-shadow: 0 0 3px 0px rgba(0, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 8px 2px rgba(0, 255, 255, 1); }
+          }
+          .animate-pulse-glow-border { animation: pulse-glow-border 2s infinite ease-in-out; }
         `}</style>
 
         {strategyCardIsland && (
           <StrategyCardModal 
             island={strategyCardIsland} 
             onClose={() => setStrategyCardIsland(null)} 
+            onWatchAgain={handleWatchAgain}
           />
+        )}
+        
+        {replayingIslandIndex !== null && VIDEOS[replayingIslandIndex] && (
+            <ReplayVideoModal
+                videoUrl={VIDEOS[replayingIslandIndex]}
+                islandName={ISLAND_CONFIGS[replayingIslandIndex].name}
+                onClose={() => setReplayingIslandIndex(null)}
+            />
         )}
 
         {selectedIsland !== null && VIDEOS[selectedIsland] && (

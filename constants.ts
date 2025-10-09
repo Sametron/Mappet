@@ -55,7 +55,7 @@ export const ISLAND_CONFIGS: IslandConfig[] = [
     activeImg: 'https://big5hk.vercel.app/images/Land02_active.gif',
     developedImg: 'https://big5hk.vercel.app/images/Land02_developed.png',
     cardImg: 'https://big5hk.vercel.app/images/Card02.png', // 02
-    promptQuestion: 'How many clinics will we have under Big5?'
+    promptQuestion: 'How many clinics will we have under Big 5?'
   },
    { 
     x: 240, y: 330, size: 320,
