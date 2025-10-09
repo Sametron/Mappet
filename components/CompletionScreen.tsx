@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ISLAND_CONFIGS, OUTRO_VIDEO_URL } from '../constants';
+import React, { useState, useEffect } from 'react';
+import { ISLAND_CONFIGS } from '../constants';
 
 interface CompletionScreenProps {
   show: boolean;
@@ -32,7 +32,6 @@ const CARD_FORMATION_CONFIG = {
 
 const CompletionScreen: React.FC<CompletionScreenProps> = ({ show, onPlayAgain, onClose }) => {
   const [step, setStep] = useState(0);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (!show) return;
@@ -40,27 +39,17 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({ show, onPlayAgain, 
     timers.push(window.setTimeout(() => setStep(1), 100));   // Congrats text
     timers.push(window.setTimeout(() => setStep(2), 600));   // Cards into formation
     timers.push(window.setTimeout(() => setStep(3), 2000));  // Pause
-    timers.push(window.setTimeout(() => setStep(4), 4000));  // Converge
-    timers.push(window.setTimeout(() => setStep(5), 5500));  // Show button
+    timers.push(window.setTimeout(() => setStep(4), 3500));  // Converge
+    timers.push(window.setTimeout(() => setStep(5), 4500));  // Show end screen
     return () => { timers.forEach(clearTimeout); setStep(0); };
   }, [show]);
 
-  const handlePlayVideo = () => {
-    setStep(6);
-    setTimeout(() => { videoRef.current?.play().catch(console.error); }, 500);
-  };
-
-  const handleVideoEnd = () => setStep(7);
-
   if (!show) return null;
 
-  const showCongrats        = step >= 1 && step < 6;
+  const showCongrats        = step >= 1 && step < 5;
   const cardsInFormation    = step >= 2 && step < 4;
-  const cardsConverged      = step >= 4 && step < 6;
-  const showMasterCardGlow  = step === 5;
-  const showWatchMeButton   = step === 5;
-  const showVideo           = step === 6;
-  const showEndScreen       = step === 7;
+  const cardsConverged      = step >= 4;
+  const showEndScreen       = step === 5;
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-lg flex flex-col items-center justify-center z-50 animate-fadeIn overflow-hidden">
@@ -85,8 +74,7 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({ show, onPlayAgain, 
               if (cardsInFormation || cardsConverged) classes += ' card-in-formation';
               if (cardsConverged) {
                 classes += ' card-converged';
-                if (isMaster) classes += ' is-master';
-                if (showMasterCardGlow && isMaster) classes += ' master-glow';
+                if (isMaster) classes += ' is-master master-glow';
               }
               return classes;
             };
@@ -116,30 +104,9 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({ show, onPlayAgain, 
           })}
         </div>
 
-        {/* Watch me */}
-        <div className={`absolute bottom-[15%] transition-opacity duration-500 ease-in ${showWatchMeButton ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} style={{ transitionDelay: '300ms' }}>
-          <button
-            onClick={handlePlayVideo}
-            className="px-10 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xl rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/20"
-          >
-            Watch me!
-          </button>
-        </div>
-
-        {/* Video */}
-        <div className={`absolute inset-0 transition-opacity duration-500 ${showVideo ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-          <video
-            ref={videoRef}
-            src={OUTRO_VIDEO_URL}
-            playsInline
-            onEnded={handleVideoEnd}
-            className="w-full h-full object-cover"
-          />
-        </div>
-
         {/* End Screen */}
         <div className={`absolute inset-0 flex flex-col items-center justify-center bg-black/50 transition-opacity duration-500 ${showEndScreen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-          <h2 className="text-4xl font-bold font-orbitron text-white mb-8">Mission Complete!</h2>
+          <h2 className="text-4xl font-bold font-orbitron text-white mb-8">Thanks for watching!</h2>
           <div className="flex flex-col sm:flex-row gap-4">
             <button onClick={onPlayAgain} className="px-10 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xl rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/20">
               Play Again
