@@ -11,8 +11,14 @@ interface VideoModalProps {
 
 const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const controlsTimeoutRef = useRef<number | null>(null);
+  
   const [modalState, setModalState] = useState<'prompt' | 'video' | 'card'>('prompt');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [showControls, setShowControls] = useState(true);
 
   const handleStartVideo = () => {
     setModalState('video');
@@ -22,7 +28,7 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
     const video = videoRef.current;
     if (video) {
       video.pause();
-      video.currentTime = 0; // Reset for good measure
+      video.currentTime = 0;
     }
     setModalState('card');
   }, []);
@@ -37,36 +43,90 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
       }
     }
   }, []);
+  
+  const handleScrubberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const video = videoRef.current;
+    if (video) {
+      const newTime = (Number(e.target.value) / 100) * video.duration;
+      video.currentTime = newTime;
+      setProgress(Number(e.target.value));
+    }
+  };
 
-  // FIX: Moved `handlePlay` and `handlePause` function declarations to a higher scope
-  // within the `useEffect` to make them accessible to the cleanup function, fixing a reference error.
+  const formatTime = (timeInSeconds: number) => {
+    if (isNaN(timeInSeconds) || timeInSeconds === 0) return '0:00';
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = Math.floor(timeInSeconds % 60).toString().padStart(2, '0');
+    return `${minutes}:${seconds}`;
+  };
+  
+  const hideControls = useCallback(() => {
+    if (isPlaying) {
+      setShowControls(false);
+    }
+  }, [isPlaying]);
+  
+  const resetControlsTimeout = useCallback(() => {
+    if(controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
+    controlsTimeoutRef.current = window.setTimeout(hideControls, 3000);
+  }, [hideControls]);
+
   useEffect(() => {
     if (modalState !== 'video') return;
     
     const videoElement = videoRef.current;
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
+    
+    const handlePlay = () => {
+      setIsPlaying(true);
+      resetControlsTimeout();
+    };
+    const handlePause = () => {
+      setIsPlaying(false);
+      if(controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+      setShowControls(true);
+    };
+    const handleTimeUpdate = () => {
+      if (videoElement) {
+        setCurrentTime(videoElement.currentTime);
+        setProgress((videoElement.currentTime / videoElement.duration) * 100);
+      }
+    };
+    const handleLoadedMetadata = () => {
+      if (videoElement) {
+        setDuration(videoElement.duration);
+      }
+    };
 
     if (videoElement) {
       videoElement.addEventListener('ended', handleVideoEnd);
       videoElement.addEventListener('play', handlePlay);
       videoElement.addEventListener('pause', handlePause);
-
-      // Play the video programmatically. This is allowed with sound because
-      // the modal is only shown after a direct user click on an island.
-      videoElement.play().catch(error => {
-        console.warn("Island video playback failed, skipping to card.", error);
-        onComplete();
-      });
+      videoElement.addEventListener('timeupdate', handleTimeUpdate);
+      videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
     }
+
     return () => {
       if (videoElement) {
         videoElement.removeEventListener('ended', handleVideoEnd);
         videoElement.removeEventListener('play', handlePlay);
         videoElement.removeEventListener('pause', handlePause);
+        videoElement.removeEventListener('timeupdate', handleTimeUpdate);
+        videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      }
+      if(controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
       }
     };
-  }, [modalState, handleVideoEnd, onComplete]);
+  }, [modalState, handleVideoEnd, resetControlsTimeout]);
+  
+  const handleMouseMove = () => {
+    setShowControls(true);
+    resetControlsTimeout();
+  };
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-lg flex flex-col items-center justify-center z-50 animate-fadeIn p-4 md:p-8">
@@ -94,52 +154,76 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
       <div
         className={`w-full max-w-6xl transition-all duration-500 ease-out ${modalState === 'video' ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}
         aria-hidden={modalState !== 'video'}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => isPlaying && setShowControls(false)}
       >
-        <div className="relative aspect-video w-full bg-black rounded-lg shadow-2xl overflow-hidden border-2 border-cyan-500/30">
+        <div className="relative aspect-video w-full bg-black rounded-lg shadow-2xl overflow-hidden border-2 border-cyan-500/30 group">
           <video
             ref={videoRef}
             src={videoUrl}
             playsInline
             className="absolute top-0 left-0 w-full h-full object-cover"
             aria-label={`Demonstration video for ${island.name}`}
+            onClick={togglePlayPause}
           />
-          <header className="absolute top-0 left-0 right-0 z-10 p-4 md:p-6 bg-gradient-to-b from-black/70 to-transparent pointer-events-none">
-            <h2 className="text-xl md:text-2xl font-bold font-orbitron text-cyan-300 text-shadow">
-              Strategy Briefing: {island.name}
-            </h2>
-          </header>
-          <div className="absolute bottom-4 right-4 z-10 flex items-center gap-3 animate-fadeInDelayed">
-            <button
-              onClick={togglePlayPause}
-              className="px-4 py-2 bg-black/50 backdrop-blur-sm text-white/80 rounded-lg border border-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 text-sm"
-              aria-label={isPlaying ? 'Pause video' : 'Play video'}
-            >
-              <span className="flex items-center gap-2 font-semibold">
-                {isPlaying ? (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
-                    PAUSE
-                  </>
-                ) : (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                    PLAY
-                  </>
-                )}
-              </span>
-            </button>
-            <button
-              onClick={handleVideoEnd}
-              className="px-5 py-2 bg-black/50 backdrop-blur-sm text-white/80 rounded-lg border border-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 text-sm"
-              aria-label="Skip strategy briefing"
-            >
-              <span className="flex items-center gap-2 font-semibold">
-                SKIP
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                </svg>
-              </span>
-            </button>
+
+          {!isPlaying && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+              <button
+                onClick={togglePlayPause}
+                className="pointer-events-auto w-20 h-20 md:w-24 md:h-24 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white/80 border-2 border-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 transform hover:scale-110"
+                aria-label="Play video"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 md:h-12 md:w-12 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+              </button>
+            </div>
+          )}
+
+          <div className={`absolute inset-0 flex flex-col justify-between transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'} pointer-events-none`}>
+            <header className="p-4 md:p-6 bg-gradient-to-b from-black/70 to-transparent">
+              <h2 className="text-xl md:text-2xl font-bold font-orbitron text-cyan-300 text-shadow">
+                Strategy Briefing: {island.name}
+              </h2>
+            </header>
+            
+            <div className="p-4 md:p-6 bg-gradient-to-t from-black/70 to-transparent pointer-events-auto">
+                <div className="w-full flex items-center gap-4 text-white">
+                    <button
+                        onClick={togglePlayPause}
+                        aria-label={isPlaying ? "Pause" : "Play"}
+                        className="p-2"
+                    >
+                        {isPlaying ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
+                        ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                        )}
+                    </button>
+                    <span className="text-sm font-mono w-14 text-center">{formatTime(currentTime)}</span>
+                    <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={progress}
+                        onChange={handleScrubberChange}
+                        className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                        aria-label="Video progress scrubber"
+                    />
+                    <span className="text-sm font-mono w-14 text-center">{formatTime(duration)}</span>
+                    <button
+                        onClick={handleVideoEnd}
+                        className="px-4 py-1.5 bg-black/50 backdrop-blur-sm text-white/80 rounded-lg border border-white/30 hover:bg-white/20 hover:text-white transition-all duration-300 text-xs"
+                        aria-label="Skip strategy briefing"
+                    >
+                        <span className="flex items-center gap-1 font-semibold">
+                            SKIP
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </div>
           </div>
         </div>
       </div>
@@ -188,15 +272,6 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
         }
         .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
         
-        @keyframes fadeInDelayed {
-          0% { opacity: 0; transform: translateY(10px); }
-          66% { opacity: 0; transform: translateY(10px); } /* Wait for 2s */
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeInDelayed {
-          animation: fadeInDelayed 3s ease-out forwards;
-        }
-
         @keyframes slideUp {
           from { transform: translateY(30px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
@@ -239,6 +314,28 @@ const VideoModal: React.FC<VideoModalProps> = ({ videoUrl, onComplete, island })
           );
           animation: shimmer 4s infinite linear;
           animation-delay: 1s;
+        }
+
+        /* Scrubber custom styles */
+        input[type=range].accent-cyan-400::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #22d3ee;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        input[type=range].accent-cyan-400::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #22d3ee;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            transition: background .2s;
         }
       `}</style>
     </div>
