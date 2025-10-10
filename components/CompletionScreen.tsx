@@ -14,19 +14,16 @@ const CARD_FORMATION_CONFIG = {
     maxWidth: '150px',
   },
   positions: [
+    // A more compact 2-row formation
     // Top Row (indices 0, 1, 2)
-    { x: '-30vmin', y: '-20vh', rotate: '-10deg' },
-    { x: '0vmin',   y: '-25vh', rotate: '0deg'  },
-    { x: '30vmin',  y: '-20vh', rotate: '10deg'  },
+    { x: '-25vmin', y: '-15vh', rotate: '-10deg' },
+    { x: '0vmin',   y: '-18vh', rotate: '0deg'  },
+    { x: '25vmin',  y: '-15vh', rotate: '10deg'  },
     // Bottom Row (indices 3, 4, 5)
-    { x: '-30vmin', y: '20vh', rotate: '10deg' },
-    { x: '0vmin',   y: '25vh', rotate: '0deg'   },
-    { x: '30vmin',  y: '20vh', rotate: '-10deg'  },
+    { x: '-25vmin', y: '15vh', rotate: '10deg' },
+    { x: '0vmin',   y: '18vh', rotate: '0deg'   },
+    { x: '25vmin',  y: '15vh', rotate: '-10deg'  },
   ],
-  converged: {
-    y: '-10vh',
-    scale: '1.1'
-  }
 };
 /* --- END EASY EDIT AREA --- */
 
@@ -34,48 +31,47 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({ show, onPlayAgain, 
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    if (!show) return;
-    const timers: number[] = [];
-    timers.push(window.setTimeout(() => setStep(1), 100));   // Congrats text
-    timers.push(window.setTimeout(() => setStep(2), 600));   // Cards into formation
-    timers.push(window.setTimeout(() => setStep(3), 2000));  // Pause
-    timers.push(window.setTimeout(() => setStep(4), 3500));  // Converge
-    timers.push(window.setTimeout(() => setStep(5), 4500));  // Show end screen
-    return () => { timers.forEach(clearTimeout); setStep(0); };
+    if (show) {
+      const timers: number[] = [];
+      // Animation sequence
+      timers.push(window.setTimeout(() => setStep(1), 100));   // 1. Show "Congrats!" text
+      timers.push(window.setTimeout(() => setStep(2), 600));   // 2. Animate cards into formation
+      timers.push(window.setTimeout(() => setStep(3), 2000));  // 3. Show buttons after cards are settled
+      
+      return () => { 
+        timers.forEach(clearTimeout); 
+      };
+    } else {
+      // Reset animation state when hidden
+      setStep(0);
+    }
   }, [show]);
 
   if (!show) return null;
 
-  const showCongrats        = step >= 1 && step < 5;
-  const cardsInFormation    = step >= 2 && step < 4;
-  const cardsConverged      = step >= 4;
-  const showEndScreen       = step === 5;
+  const showCongrats        = step >= 1;
+  const cardsInFormation    = step >= 2;
+  const showButtons         = step >= 3;
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-lg flex flex-col items-center justify-center z-50 animate-fadeIn overflow-hidden">
       <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, rgba(15, 36, 96, 1) 0%, #0a1941 100%)' }} />
       <div className="absolute inset-0 opacity-40" style={{ background: 'radial-gradient(ellipse at center, rgba(6, 182, 212, 0.4) 0%, transparent 60%)' }} />
 
-      <div className="relative text-center z-10 w-full h-full flex flex-col items-center justify-center">
-        {/* Congrats */}
-        <div className={`transition-transform duration-1000 ease-in-out ${cardsConverged ? '-translate-y-[22vh]' : 'translate-y-0'}`}>
-          <h1 className={`text-6xl md:text-8xl font-black font-orbitron tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 text-transparent bg-clip-text mb-2 text-shadow-glow transition-all duration-500 ease-out ${showCongrats ? 'opacity-100 scale-100 animate-pulse-gentle' : 'opacity-0 scale-90'}`}>
+      <div className="relative text-center z-10 w-full h-full flex flex-col items-center justify-between py-12 md:py-16">
+        {/* Congrats Header */}
+        <div className={`transition-all duration-700 ease-out ${showCongrats ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-4 scale-95'}`}>
+          <h1 className={`text-6xl md:text-8xl font-black font-orbitron tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 text-transparent bg-clip-text mb-2 text-shadow-glow animate-pulse-gentle`}>
             Congrats!
           </h1>
         </div>
 
-        {/* Cards Container — centred */}
+        {/* Cards Container — absolutely positioned in the middle */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           {ISLAND_CONFIGS.map((island, index) => {
-            const isMaster = index === ISLAND_CONFIGS.length - 1;
-
             const getCardClass = () => {
               let classes = 'card-wrapper';
-              if (cardsInFormation || cardsConverged) classes += ' card-in-formation';
-              if (cardsConverged) {
-                classes += ' card-converged';
-                if (isMaster) classes += ' is-master master-glow';
-              }
+              if (cardsInFormation) classes += ' card-in-formation';
               return classes;
             };
 
@@ -86,10 +82,8 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({ show, onPlayAgain, 
               '--formation-x': pos.x,
               '--formation-y': pos.y,
               '--formation-rotate': pos.rotate,
-              '--converged-y': CARD_FORMATION_CONFIG.converged.y,
-              '--converged-scale': CARD_FORMATION_CONFIG.converged.scale,
-              transitionDelay: `${cardsConverged ? (ISLAND_CONFIGS.length - 1 - index) * 80 : index * 150}ms`,
-              zIndex: cardsConverged ? 20 + index : 10 + index,
+              transitionDelay: `${index * 150}ms`,
+              zIndex: 10 + index,
             } as React.CSSProperties;
 
             return (
@@ -103,10 +97,9 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({ show, onPlayAgain, 
             );
           })}
         </div>
-
-        {/* End Screen */}
-        <div className={`absolute inset-0 flex flex-col items-center justify-center bg-black/50 transition-opacity duration-500 ${showEndScreen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-          <h2 className="text-4xl font-bold font-orbitron text-white mb-8">Thanks for watching!</h2>
+        
+        {/* Buttons Footer */}
+        <div className={`transition-all duration-700 ease-out ${showButtons ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           <div className="flex flex-col sm:flex-row gap-4">
             <button onClick={onPlayAgain} className="px-10 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xl rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/20">
               Play Again
@@ -140,7 +133,7 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({ show, onPlayAgain, 
           /* initial state: start from centre of container */
           opacity:0;
           transform: translate(-50%, -50%) translateY(50vh) scale(0.5);
-          transition: transform 1.2s cubic-bezier(0.34,1.56,0.64,1), opacity .8s ease, filter .5s ease;
+          transition: transform 1.2s cubic-bezier(0.34,1.56,0.64,1), opacity .8s ease;
         }
 
         .card-in-formation{
@@ -150,17 +143,6 @@ const CompletionScreen: React.FC<CompletionScreenProps> = ({ show, onPlayAgain, 
                                calc(-50% + var(--formation-y)))
                      rotate(var(--formation-rotate));
         }
-
-        .card-converged{
-          transition-duration:.8s;
-          /* converge to centre again */
-          transform: translate(-50%, var(--converged-y))
-                     scale(var(--converged-scale)) rotate(0deg)!important;
-          opacity:0 !important; /* hide all in the stack by default */
-        }
-
-        .card-converged.is-master{ opacity:1 !important; }
-        .master-glow{ filter: drop-shadow(0 0 25px rgba(0,255,255,0.9)); }
       `}</style>
     </div>
   );

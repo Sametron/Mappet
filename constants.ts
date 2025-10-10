@@ -81,7 +81,7 @@ export const ISLAND_CONFIGS: IslandConfig[] = [
   },
   {
     x: 260, y: 700, size: 320,
-    name: 'Digital Healthcare Journey',
+    name: 'Connected Care',
     description: 'Experience a tailored healthcare journey with a Personalised Health Plan on Blua. Comprehensive support and access to a wide range of services designed for each customer’s unique needs.',
     lore: 'Experience a tailored healthcare journey with a Personalised Health Plan on Blua. Comprehensive support and access to a wide of services designed for each customer’s unique needs.',
     undevelopedImg: 'https://big5hk.vercel.app/images/Land05_empty.png',
@@ -150,6 +150,9 @@ export const FOOTER_IMAGE_CONFIG: FooterImageConfig = {
   mobileY: 2,
   mobileSize: 22,
 };
+
+// Spacing between progress indicator steps in pixels.
+export const PROGRESS_INDICATOR_GAP: number = 80;
 
 // Enforces one-by-one island unlocking if true
 export const SEQUENTIAL: boolean = true;
