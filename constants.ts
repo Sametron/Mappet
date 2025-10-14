@@ -107,22 +107,22 @@ export const ISLAND_CONFIGS: IslandConfig[] = [
 // Optional list of MP4 links for each island
 // Using short, generic videos for demonstration
 export const VIDEOS: string[] = [
-  "https://big5hk.vercel.app/videos/01island.mp4",
-  "https://big5hk.vercel.app/videos/02island.mp4",
-  "https://big5hk.vercel.app/videos/03island.mp4",
-  "https://big5hk.vercel.app/videos/04island.mp4",
-  "https://big5hk.vercel.app/videos/05island.mp4",
-  "https://big5hk.vercel.app/videos/06island.mp4",
+  "/videos/01island.mp4",
+  "/videos/02island.mp4",
+  "/videos/03island.mp4",
+  "/videos/04island.mp4",
+  "/videos/05island.mp4",
+  "/videos/06island.mp4",
 ];
 
 // URL for the introductory MP4 video
-export const INTRO_VIDEO_URL: string = "https://big5hk.vercel.app/videos/intro.mp4";
+export const INTRO_VIDEO_URL: string = "/videos/intro.mp4";
 
 // URL for the second introductory MP4 video. Using outro as placeholder.
-export const SECOND_INTRO_VIDEO_URL: string = "https://big5hk.vercel.app/videos/intro2.mp4";
+export const SECOND_INTRO_VIDEO_URL: string = "/videos/intro2.mp4";
 
 // URL for the celebratory outro video on the completion screen
-export const OUTRO_VIDEO_URL: string = "https://big5hk.vercel.app/videos/ending.mp4";
+export const OUTRO_VIDEO_URL: string = "/videos/ending.mp4";
 
 // Configuration for the "Do you know?" prompt in the video modal
 export const VIDEO_MODAL_PROMPT_CONFIG = {
