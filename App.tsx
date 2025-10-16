@@ -5,6 +5,7 @@ import StrategyCardModal from './components/StrategyCardModal';
 import ReplayVideoModal from './components/ReplayVideoModal';
 import LoadingScreen from './components/LoadingScreen';
 import CompletionScreen from './components/CompletionScreen';
+import EndingScreen from './components/EndingScreen';
 import IntroVideo from './components/IntroVideo';
 import { BACKGROUND_URL, START_SCREEN_BACKGROUND_URL, ISLAND_CONFIGS, VIDEOS, SEQUENTIAL, FOOTER_IMAGE_CONFIG, HEADER_LOGO_CONFIG, VIRTUAL_CANVAS_WIDTH, VIRTUAL_CANVAS_HEIGHT, LOADING_GIF_CONFIG, SECOND_INTRO_VIDEO_URL, SECOND_INTRO_VIDEO_MUTED, PROGRESS_INDICATOR_GAP } from './constants';
 import type { IslandStatus, DeviceType, IslandConfig, AppPhase } from './types';
@@ -99,6 +100,7 @@ const App: React.FC = () => {
   const [newlyActiveIsland, setNewlyActiveIsland] = useState<number | null>(null);
   const [deviceType, setDeviceType] = useState<DeviceType>('desktop');
   const [completionScreenDismissed, setCompletionScreenDismissed] = useState(false);
+  const [completionPhase, setCompletionPhase] = useState<'none' | 'cards' | 'ending'>('none');
   const [isSecondIntroPlaying, setIsSecondIntroPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const secondIntroVideoRef = useRef<HTMLVideoElement>(null);
@@ -188,6 +190,16 @@ const App: React.FC = () => {
 
 
   const isComplete = unlockedIslands.length === ISLAND_CONFIGS.length;
+  
+  useEffect(() => {
+    if (isComplete && !completionScreenDismissed) {
+      if (completionPhase === 'none') {
+        setCompletionPhase('cards');
+      }
+    } else {
+      setCompletionPhase('none');
+    }
+  }, [isComplete, completionScreenDismissed, completionPhase]);
 
   const activeIslandIndex = useMemo(() => {
     if (isComplete || !SEQUENTIAL) return -1;
@@ -238,6 +250,10 @@ const App: React.FC = () => {
 
   const handleCompletionClose = useCallback(() => {
     setCompletionScreenDismissed(true);
+  }, []);
+
+  const handleCompletionAnimationEnd = useCallback(() => {
+    setCompletionPhase('ending');
   }, []);
   
   const handleIntroComplete = useCallback(() => setAppPhase('secondIntroPrompt'), []);
@@ -352,13 +368,14 @@ const App: React.FC = () => {
                             style={{ height: `${logoHeight}vh`, maxHeight: '80px' }}
                         />
                         <h1 className="text-4xl md:text-5xl font-black font-orbitron tracking-wider text-shadow-glow mb-4">
-                            YOUR MISSION AWAITS
+                            BHK Big 5
                         </h1>
                     </div>
 
                     <div className="animate-slideUp" style={{ animationDelay: '0.5s' }}>
                         <p className="text-lg md:text-xl text-cyan-200/90 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
-                            You have been selected to lead a critical expedition. Your objective: explore and activate five strategic pillars that will shape the future of healthcare in Hong Kong. Each unlocked location will reveal a piece of our grand vision.
+                           Explore how Bupa HK is becoming the #1 Integrated Healthcare Company in Hong Kong through growth as a funder, expanding as an outpatient service provider & building strategic inpatient partnerships, with data, digital and technological capabilities, thereby achieving $1bn profit.
+
                         </p>
                     </div>
                     
@@ -366,9 +383,9 @@ const App: React.FC = () => {
                         <button
                             onClick={handleStart}
                             className="px-12 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xl rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/20 ring-2 ring-cyan-500/50 ring-offset-2 ring-offset-gray-900"
-                            aria-label="Begin the mission"
+                            aria-label="BEGIN THE SAFARI"
                         >
-                            BEGIN MISSION
+                            BEGIN THE SAFARI
                         </button>
                     </div>
                 </div>
@@ -653,7 +670,12 @@ const App: React.FC = () => {
         )}
         
         <CompletionScreen 
-          show={isComplete && !completionScreenDismissed} 
+          show={completionPhase === 'cards'}
+          onAnimationComplete={handleCompletionAnimationEnd}
+        />
+        
+        <EndingScreen 
+          show={completionPhase === 'ending'} 
           onPlayAgain={handleReset}
           onClose={handleCompletionClose}
         />
